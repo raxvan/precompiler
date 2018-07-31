@@ -45,12 +45,19 @@
 //--------------------------------
 //--------------------------------
 //inline:
-#redefine _ ##inline "foo"
+#redefine _ ##inline "foo''"
 #colapse _
-#if value("_") != 'foo':
-	#error "`colapse & #inline \"foo\"` Failed"
+#if value("_") != 'foo\'\'':
+	#error "`colapse & #inline \"foo''\"` Failed"
 #else
-	#run print("`colapse & #inline \"foo\"` -> Ok")
+	#run print("`colapse & #inline \"foo''\"` -> Ok")
 #endif
 
+#redefine _ ##inline "foo\"\""
+#colapse _
+#if value("_") != 'foo""':
+	#error "`colapse & #inline \"foo\\\"\\"\"` Failed"
+#else
+	#run print("`colapse & #inline \"foo\\\"\\\"\"` -> Ok")
+#endif
 //--------------------------------

@@ -113,14 +113,16 @@ def BoxStringHigh(str_value):
 		"\"":  "\\\"",
 	}))
 
+
 #replaces escape sequances with actual characters
 def UnboxString(str_value):
-	if(str_value[0] == '\"'):
-		fixed_str = str_value.strip('"')
-		return bytes(fixed_str, 'utf-8').decode('unicode_escape')
-	elif(str_value[0] == '\''):
-		fixed_str = str_value.strip('\'')
-		return bytes(fixed_str, 'utf-8').decode('unicode_escape')
+	result = str_value
+	if(result[0] == '\"' or result[0] == '\''):
+		result = result[1:]
+	if(result[-1] == '\"' or result[-1] == '\''):
+		result = result[:-1]
+
+	return bytes(result, 'utf-8').decode('unicode_escape')
 
 ###########################################################################################################
 ###########################################################################################################

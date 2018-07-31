@@ -1,4 +1,4 @@
-Note: this is still work in progress...
+Note: this is work in progress...
 
 ## Introduction
 
@@ -6,7 +6,7 @@ Similar to the c preprocessor, the precompiler is a processing tool for generic 
 
 #### Features:
 
-- Expandable Python api that can be extended and used in build systems
+- Expandable Python api that can be used in build systems
 - Support for custom lexers and virtually any language
 - Uses python code in conditional checks and others commands (example `#run print("hello world")`, `#if python_code("some_string") == True: ...`)
 - Recursive macros
