@@ -50,6 +50,7 @@ g_trivial_tokens = [
 	'WHITE',
 	'WHITE_MULTILINE',
 	'LINE_COMMENT', #has line ending
+	'LINE_COMMENT_MULTILINE',
 	'BLOCK_COMMENT',
 	'BLOCK_COMMENT_MULTILINE',
 
@@ -109,7 +110,8 @@ _prep_tokens_ex = _pc_utils.precompiler_tokens
 _prep_map = {
 	'WHITE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ),
 	'WHITE_MULTILINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag ),
-	'LINE_COMMENT' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag ),
+	'LINE_COMMENT' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag ),
+	'LINE_COMMENT_MULTILINE' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag ),
 	'BLOCK_COMMENT' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag ),
 	'BLOCK_COMMENT_MULTILINE' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag),
 
@@ -160,24 +162,29 @@ _prep_map = {
 def t_TOK_STRING_HIGH(t):
 	r'"(?:\\.|[^"\\])*"'
 	t.type = 'STRING'
+	t.value = [t.value]
 	return t
 
 def t_TOK_STRING_LOW(t):
 	r'\'(?:\\.|[^\'\\])*\''
 	t.type = 'STRING'
+	t.value = [t.value]
 	return t
 
 def t_TOK_FLOAT_INTERNAL(t):
 	r'[-+]?(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?'
 	t.type = 'NUMBER'
+	t.value = [t.value]
 	return t
 
 def t_NUMBER(t):
 	r'\d+'
+	t.value = [t.value]
 	return t
 
 def t_ID(t):
 	r'[A-Za-z_]\w*'
+	t.value = [t.value]
 	return t
 
 #multiline, eats entire line except `\n`
@@ -191,7 +198,7 @@ def t_DEF(t):
 			data = None
 	if t.value.endswith("\n"):
 		t.lexer.lineno += 1
-	t.value = [t.lexer.lexmatch.group('defid'),data]
+	t.value = [t.value,t.lexer.lexmatch.group('defid'),data]
 	if name == "redefine":
 		t.type = "REDEF"
 	return t
@@ -207,7 +214,7 @@ def t_RUN(t):
 			data = None
 	if t.value.endswith("\n"):
 		t.lexer.lineno += 1
-	t.value = data
+	t.value = [t.value,data]
 	return t
 
 #multiline, eats entire line except `\n` or `:`
@@ -221,7 +228,7 @@ def t_TOK_IF_ELSEIF(t):
 	else:
 		t.type = 'IF' if func == "if" else 'ELIF'
 
-	t.value = exp.strip(': \t\n\r')
+	t.value = [t.value,exp.strip(': \t\n\r')]
 	return t
 
 def t_EXP_TRIVIAL(t):
@@ -230,10 +237,10 @@ def t_EXP_TRIVIAL(t):
 	if nm == 'endl':
 		#lexer hack
 		t.type = 'WHITE_MULTILINE'
-		t.value = 'asd\n'
+		t.value = ['\n']
 	else:
 		t.type = g_trivial_statements.get(nm,None)
-		t.value = None
+		t.value = [t.value]
 		assert(t.type != None)
 	return t
 
@@ -242,11 +249,11 @@ def _internal_EXP_WITH_STRING_ARG(t,string_terminator):
 	str_value = string_terminator + t.lexer.lexmatch.group('str_arg') + string_terminator
 	t.type = g_exp_with_string_or_id_arg.get(exp,None)
 	if t.type != None:
-		t.value = [str_value,_prep_flags.k_string_flag]
+		t.value = [t.value,str_value,_prep_flags.k_string_flag]
 		return t
 	t.type = g_exp_with_string_args.get(exp,None)
 	if t.type != None:
-		t.value = str_value
+		t.value = [t.value,str_value]
 		return t
 	t.type = "?"
 
@@ -266,11 +273,11 @@ def t_EXP_WITH_ID_ARG(t):
 	name = t.lexer.lexmatch.group('name')
 	t.type = g_exp_with_id_arg.get(exp,None)
 	if t.type != None:
-		t.value = name
+		t.value = [t.value,name]
 		return t
 	t.type = g_exp_with_string_or_id_arg.get(exp,None)
 	if t.type != None:
-		t.value = [name,_prep_flags.k_identifier_flag]
+		t.value = [t.value,name,_prep_flags.k_identifier_flag]
 		return t
 	t.type = "?"
 	RaiseError("Invalid token!",exp)
@@ -284,29 +291,38 @@ def t_WHITE(t):
 	if newline_count != 0:
 		t.lexer.lineno += newline_count
 		t.type = 'WHITE_MULTILINE'
+	t.value = [t.value]
 	return t
 
 #multiline, eats entire line except `\n`
 def t_LINE_COMMENT(t):
-	r'//(\n|[\w\W]*?[^\\]\n)(?#filler_comment_for_regex_length_________________)'
-	t.lexer.lineno += 1
+	r'//(?:.|\n)*(?#filler_comment_for_regex_length_________________)'
+	newline_count = t.value.count("\n")
+	if newline_count != 0:
+		t.lexer.lineno += newline_count
+		t.type = 'LINE_COMMENT_MULTILINE'
+	t.value = [t.value]
+	t.value = [t.value]
 	return t
 
 #multiline
 def t_BLOCK_COMMENT(t):
-	r'(/\*(.|\n)*?(\*/))(?#filler_comment_for_regex_length_________________)'
+	r'(/\*(.|\n|.)*?(\*/))(?#filler_comment_for_regex_length_________________)'
 	newline_count = t.value.count("\n")
 	if newline_count != 0:
 		t.lexer.lineno += newline_count
 		t.type = 'BLOCK_COMMENT_MULTILINE'
+	t.value = [t.value]
 	return t
 
 def t_CH_NOP(t):
 	r'\#[-.>]'
+	t.value = [t.value]
 	return t
 
 def t_CH(t):
 	r'[-`~!@$%^&*+=|;:\\.,?/><]+'
+	t.value = [t.value]
 	return t
 
 #used here not to match characters in line comments or comment block
@@ -322,6 +338,7 @@ _ch_type_map = {
 def t_TOK_CH_EX(t):
 	r'[(){}<>\[\]]'
 	t.type = _ch_type_map[t.value]
+	t.value = [t.value]
 	return t
 
 def t_error(t):
@@ -349,6 +366,7 @@ def StringTokenize(source_identifier,content, inherited_location, offset ):
 	result = []
 
 	g_current_line = 0
+	g_lexer.lineno = 0
 
 	while True:
 		current_line = g_lexer.lineno
@@ -378,4 +396,3 @@ def StringTokenize(source_identifier,content, inherited_location, offset ):
 	return result
 
 ###########################################################################################################
-

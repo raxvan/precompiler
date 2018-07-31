@@ -1,6 +1,4 @@
-# precompiler
-
-Note: this is work in progress...
+Note: this is still work in progress...
 
 ## Introduction
 
@@ -10,7 +8,7 @@ Similar to the c preprocessor, the precompiler is a processing tool for generic 
 
 - Expandable Python api that can be extended and used in build systems
 - Support for custom lexers and virtually any language
-- Uses with python in conditional check and others commands (example `#run print("hello world")`, `#if python_code("some_string") == True: ...`)
+- Uses python code in conditional checks and others commands (example `#run print("hello world")`, `#if python_code("some_string") == True: ...`)
 - Recursive macros
 - Powerful argument capture for macros
 
@@ -24,7 +22,7 @@ Similar to the c preprocessor, the precompiler is a processing tool for generic 
 ```
 //c++ source file:
 #inline "#include <stdio>"
-//#define ENABLE_DEBUG_LOG
+//#def ENABLE_DEBUG_LOG
 int main()
 {
 	#ifdef ENABLE_DEBUG_LOG
@@ -79,6 +77,8 @@ void main()
 
 ## Alternatives
 
+https://github.com/ned14/pcpp
+
 https://www.boost.org/doc/libs/1_67_0/libs/preprocessor/doc/index.html
 
 https://gcc.gnu.org/onlinedocs/cpp/
@@ -100,13 +100,11 @@ In c and c++ the #include system is probably one of the most controvertial featu
 - Meta-data and reflection systems inside the code.
 - Custom #pragmas were used to generate multi-threaded code.
 
-Having such a tool available to the developer with even more functionality was the main motivation behind the precompiler. The main goals are: 
+Having such a tool available to the developer with even more functionality was the main motivation behind the precompiler. Because it's language agnostic can be used in a variaty of languages and many uses-cases:
 
-- Similar to C precompiler
-- Easy to understand
-- Allow it to work with any language
-- Powerfull and simple code and metdata generation
-
+- Preprocessing glsl shaders allows you to use includes and even metadata directly inside the shader. This is often a problem and developers have all sort of approaches for this (many layers of shader stitching and processing, xml files for metadata, etc).
+- Automatic generation of c++ compilation units. Knowing file dependencies can be used to generate optimal compilation units
+- Powerfull code generation without macros placed everywhere
 
 
 ## Work in progress
@@ -116,7 +114,7 @@ The short term todo list:
 - Implementation for `#colapse`
 - Built-in macros implementation (`__FILE__`, `__LINE__`)
 - Tests for all errors
-- Tests for complex scenarios (More Tests)
+- Tests for more complex scenarios
 - Proper dependency tree generation
 - Examples
 

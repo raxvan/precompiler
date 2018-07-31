@@ -1,0 +1,17 @@
+
+
+#ifdef MARK_ONCE
+	source once
+	#source once
+#endif
+
+#ifdef TEST_BREAK
+	breaking...
+	#source break
+#endif
+
+content
+
+#ifdef EXTRA
+	extra content
+#endif

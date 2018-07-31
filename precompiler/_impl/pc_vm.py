@@ -36,7 +36,7 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 			lh = self._get_look_ahead_token()
 			assert lh != None, "Missing lookahead token!"
 			(_,_,expected_value,_) = lh
-			self.precompiler.RaiseErrorOnToken(tok,"Invalid arguments!","Expected [" + expected_value + "]")
+			self.precompiler.RaiseErrorOnToken(tok,"Invalid arguments!","Expected [" + expected_value[0] + "]")
 
 		self.arg_map[self.target_argument_name].append(tok)
 
@@ -45,9 +45,9 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 			self.scope_stack.append(tok_flags)
 		elif tok_type == _cmd_tokens.k_scope_pop:
 			if len(self.scope_stack) == 0:
-				self.precompiler.RaiseErrorOnToken(tok,"Unexpected token!","[" + val + "]")
+				self.precompiler.RaiseErrorOnToken(tok,"Unexpected token!","[" + val[0] + "]")
 			if (self.scope_stack[-1] & _token_flags.k_first_mask) != (tok_flags & _token_flags.k_first_mask):
-				self.precompiler.RaiseErrorOnToken(tok,"Mismatched token!","[" + val + "]")
+				self.precompiler.RaiseErrorOnToken(tok,"Mismatched token!","[" + val[0] + "]")
 			self.scope_stack.pop()
 
 
@@ -64,8 +64,8 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 			if expected_type != _primitive_toks.kIdentifier:
 				break;
 
-			self.target_argument_name = expected_value
-			self.arg_map.setdefault(expected_value,[])
+			self.target_argument_name = expected_value[0]
+			self.arg_map.setdefault(expected_value[0],[])
 			self.expected_arguments.pop(0)
 
 	def shift(self):
@@ -131,13 +131,13 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		if toktype == _cmd_tokens.k_include:
 			self.precompiler.open_file_and_include(unboxed_str,tok)
 		elif toktype == _cmd_tokens.k_inline_include:
-			self.assembler.Write((_primitive_toks.kInlined,0,self.precompiler.open_file_and_get_str(unboxed_str,tok)))
+			self.assembler.Write((_primitive_toks.kInlined,0,[self.precompiler.open_file_and_get_str(unboxed_str,tok)]))
 		elif toktype == _cmd_tokens.k_inline_str:
-			self.assembler.Write((_primitive_toks.kInlined,0,unboxed_str))
+			self.assembler.Write((_primitive_toks.kInlined,0,[unboxed_str]))
 		elif toktype == _cmd_tokens.k_inline_eval:
 			result = self.precompiler.run_python_eval(tok,unboxed_str);
 			if(result != None):
-				self.assembler.Write((_primitive_toks.kInlined,0,str()))
+				self.assembler.Write((_primitive_toks.kInlined,0,[str(result)]))
 		elif toktype == _cmd_tokens.k_error:
 			self.precompiler.RaiseErrorOnToken(tok,"User #error!",unboxed_str)
 		else:
@@ -160,7 +160,8 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		self.assembler = next_assembler
 
 	def _colapse_macro(self,tok):
-		df = self.precompiler.get_required_define(tok,tok[2])
+		_tok_value = tok[2]
+		df = self.precompiler.get_required_define(tok,_tok_value[1])
 		tokens = df.GetValueAsTokens();
 		df.ClearValue();
 
@@ -178,15 +179,17 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		#strings, characters, comments, whitespaces, etc
 		if (tokflags & _token_flags.k_trivial_flag) != 0:
 			if _is_executed:
+
 				self.assembler.Write(tok)
 			return self
 
 		toktype = tok[1]
+		_tok_value = tok[2]
 
 		#check for defines with same name
 		if toktype == _primitive_toks.kIdentifier:
 			if _is_executed:
-				df = _prep.input_state.FindVarDefineWithName(tok[2])
+				df = _prep.input_state.FindVarDefineWithName(_tok_value[0])
 				if df != None:
 					return self._expand_define(df,tok)
 				else:
@@ -197,12 +200,12 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		if (tokflags & _token_flags.k_conditional_flag) != 0:
 			if toktype == _cmd_tokens.k_if_defined:
 				if _is_executed:
-					_prep.push_execution_state(_prep.is_defined(tok[2]))
+					_prep.push_execution_state(_prep.is_defined(_tok_value[0]))
 				else:
 					_prep.push_execution_state(None)
 			elif toktype == _cmd_tokens.k_if_not_defined:
 				if _is_executed:
-					cond = _prep.is_defined(tok[2])
+					cond = _prep.is_defined(_tok_value[0])
 					_prep.push_execution_state(True if (cond == False) else False)
 				else:
 					_prep.push_execution_state(None)
@@ -231,7 +234,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		if _is_executed:
 			#all this commands should have k_command_flag
 			if (tokflags & _token_flags.k_id_str_argument_flag) != 0:
-				(name_or_str,type_of_argument) = tok[2]
+				(_,name_or_str,type_of_argument) = _tok_value
 
 				if type_of_argument == _token_flags.k_identifier_flag:
 					string_value = _prep.get_required_define(tok,name_or_str).GetValueAsString()
@@ -241,7 +244,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 					return self._evaluate_functions_with_string_arg(tok,toktype,_pc_utils.UnboxString(name_or_str))
 
 			elif toktype == _cmd_tokens.k_define:
-				(name,content) = tok[2]
+				(_,name,content) = _tok_value
 				(arguments,value) = _prep.parse_define_content(tok,content);
 				_prep.add_new_define(tok,_impl_pc_define.VarDefine(name,arguments,value,tok,_prep))
 
@@ -255,13 +258,13 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 				_prep._preprocess_run_output(tok)
 
 			elif toktype == _cmd_tokens.k_cwstrip:
-				_prep.get_required_define(tok,tok[2]).CwStrip()
+				_prep.get_required_define(tok,_tok_value[1]).CwStrip()
 
 			elif toktype == _cmd_tokens.k_undefine:
-				if _prep.input_state.RemoveDefineRecursive(tok[2]) == False:
+				if _prep.input_state.RemoveDefineRecursive(_tok_value[1]) == False:
 					_prep.RaiseErrorOnToken(tok,"Failed to execute #undef statement!","Searching for `" + tok[2] + "`")
 			elif toktype == _cmd_tokens.k_source:
-				self._evaluate_source_id(tok,tok[2])
+				self._evaluate_source_id(tok,_tok_value[1])
 
 			return self
 
@@ -362,7 +365,8 @@ class _precompiler_backend(object):
 			self.RaiseErrorOnToken(tok,"TypeError!",str(e))
 
 	def evaluate_if_condition(self,tok):
-		result = self.run_python_eval(tok,tok[2]);
+		_tok_value = tok[2]
+		result = self.run_python_eval(tok,_tok_value[1]);
 		if result == "True":
 			return True
 		elif result == "False":
@@ -434,7 +438,8 @@ class _precompiler_backend(object):
 			self.RaiseErrorOnToken(tok,"Stack overflow!","Current include `" + abs_file_path + "`.")
 
 	def _preprocess_run_output(self,tok):
-		result = self.run_python_eval(tok,tok[2]);
+		_tok_value = tok[2]
+		result = self.run_python_eval(tok,_tok_value[1]);
 		if(result != None):
 			tokens = self.file_interface.RetokenizeContent(str(result),_pc_utils.TokSource(tok))
 			next_iterator = _impl_pc_iterator.GeneratedTokenInterator(tokens)

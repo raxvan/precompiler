@@ -90,7 +90,7 @@ def RaiseErrorAtToken(tok,message,variable_message):
 #processing utils
 
 def TokListJoinValue(tok_list):
-	return "".join([value[0] for (tokflags,toktype,value,source,line) in tok_list])
+	return "".join([value[0] for (_,_,value,_) in tok_list])
 
 def TokSource(tok):
 	(_,_,_,location) = tok
@@ -125,6 +125,7 @@ def UnboxString(str_value):
 ###########################################################################################################
 ###########################################################################################################
 ###########################################################################################################
+
 
 def isComment(toktype):
 	if(toktype == primitive_tokens.kComment):
@@ -161,8 +162,8 @@ class BufferedFileAssembler(object):
 		self.name = abs_file_path
 
 	def Write(self,tok_tuple):
-		#print(">" + tok_tuple[2])
-		self.buffer.append(tok_tuple[2])
+		_tok_value = tok_tuple[2]
+		self.buffer.append(_tok_value[0])
 		if (len(self.buffer) > self.size):
 			for c in self.buffer:
 				self.out_file_handle.write(c)

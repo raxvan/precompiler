@@ -52,6 +52,8 @@ class VarDefine(object):
 
 	def ApeendTokenToValue(self,tok_tuple):
 		self.GetValueAsTokens().append(tok_tuple);
+		if self.value_str != None:
+			self.value_str = None
 
 	def RequiresArguments(self):
 		if self.arguments_list != None:
