@@ -6,10 +6,6 @@ import unittest
 import sys
 import os
 
-#print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>",sys.argv)
-#class TestData:
-#	LexerTestFilePath = 
-
 
 
 class TestLexer(unittest.TestCase):

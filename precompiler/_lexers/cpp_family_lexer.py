@@ -302,7 +302,6 @@ def t_LINE_COMMENT(t):
 		t.lexer.lineno += newline_count
 		t.type = 'LINE_COMMENT_MULTILINE'
 	t.value = [t.value]
-	t.value = [t.value]
 	return t
 
 #multiline
