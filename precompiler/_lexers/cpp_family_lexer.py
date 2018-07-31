@@ -296,7 +296,7 @@ def t_WHITE(t):
 
 #multiline, eats entire line except `\n`
 def t_LINE_COMMENT(t):
-	r'//(?:.|\n)*(?#filler_comment_for_regex_length_________________)'
+	r'//[^\n]*(?#filler_comment_for_regex_length_________________)'
 	newline_count = t.value.count("\n")
 	if newline_count != 0:
 		t.lexer.lineno += newline_count
@@ -306,7 +306,7 @@ def t_LINE_COMMENT(t):
 
 #multiline
 def t_BLOCK_COMMENT(t):
-	r'(/\*(.|\n|.)*?(\*/))(?#filler_comment_for_regex_length_________________)'
+	r'(/\*(.|\n)*?(\*/))(?#filler_comment_for_regex_length_________________)'
 	newline_count = t.value.count("\n")
 	if newline_count != 0:
 		t.lexer.lineno += newline_count

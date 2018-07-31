@@ -17,6 +17,11 @@ Similar to the c preprocessor, the precompiler is a processing tool for generic 
 
 - ply
 
+#### Documentation
+
+- [Precompiler commands](https://github.com/raxvan/precompiler/blob/master/docs/main.md)
+- [Python api](https://github.com/raxvan/precompiler/blob/master/docs/api_doc.md)
+
 ## Quick Example
 
 ```
@@ -111,8 +116,8 @@ Having such a tool available to the developer with even more functionality was t
 
 The short term todo list:
 
-- Implementation for `#colapse`
 - Built-in macros implementation (`__FILE__`, `__LINE__`)
+- Documentation
 - Tests for all errors
 - Tests for more complex scenarios
 - Proper dependency tree generation

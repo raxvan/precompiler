@@ -30,7 +30,8 @@ class OutOptions:
 
 def Features():
 	return {
-		"EnableTracing" : None,
+		"MakeDependencyTree" : False,
 		"SourceOnceByDefault" : False,
+		"EvalContext" : None
 	}
 

@@ -1,0 +1,56 @@
+
+//--------------------------------
+#define _
+#if value("_") != "":
+	#error "`#define _` Failed"
+#else
+	#run print("`#define _`->Ok")
+#endif
+
+//--------------------------------
+#undef _
+#if defined("_") == True:
+	#error "`#undef _` Failed"
+#else
+	#run print("`#undef _`->Ok")
+#endif
+
+//--------------------------------
+#define _ data
+#if value("_") != "data":
+	#error "`#define _ data` Failed"
+#else
+	#run print("`#define _ data`->Ok")
+#endif
+#undef _
+//--------------------------------
+#define _ #data
+#if value("_") != "data":
+	#error "`#define _ #data` Failed"
+#else
+	#run print("`#define _ #data`->Ok")
+#endif
+
+
+//--------------------------------
+#define data #new_data
+#colapse _
+#if value("_") != "new_data":
+	#error "`#colapse _` Failed"
+#else
+	#run print("`#colapse _`->Ok")
+#endif
+#undef data
+
+//--------------------------------
+//--------------------------------
+//inline:
+#redefine _ ##inline "foo"
+#colapse _
+#if value("_") != 'foo':
+	#error "`colapse & #inline \"foo\"` Failed"
+#else
+	#run print("`colapse & #inline \"foo\"` -> Ok")
+#endif
+
+//--------------------------------

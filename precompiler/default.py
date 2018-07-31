@@ -13,20 +13,15 @@ class context(_impl_pc_vm._precompiler_backend):
 		self.run_iterations = 0
 		self.run_time = 0
 
-		#tracing_option = self.options.get("EnableTracing",None)
-		#if tracing_option != None:
-		#	file_handler.SetTrackingEnabled(tracing_option)
-
 		self.Reset()
 
 	#adds user functions to `eval` context
-	def SetDynamicEvaluationContext(self,user_ctx):
+	def ResetEvalContext(self,user_ctx):
 		self.eval_user_context = user_ctx
-		self.eval_global_context = None
+		self._invalidate_eval_ctx()
 
 	#reset preprocessor to zero
 	def Reset(self):
-		self.eval_global_context = None
 		self.run_iterations = 0
 		self.run_time = 0
 
@@ -35,6 +30,8 @@ class context(_impl_pc_vm._precompiler_backend):
 
 		#rebuild internal structure
 		self.input_state = _impl_pc_iterator.ParsingContextStack()
+
+		self._invalidate_eval_ctx()
 
 	#reset parsing and
 	def AddInputFile(self,abs_file_path):
@@ -76,7 +73,7 @@ class context(_impl_pc_vm._precompiler_backend):
 			tok = self.input_state.GetNextToken()
 			if tok == None:
 				break #end of input
-			#print(tok)
+			#print(tok,"\n")
 			_parse_state = self.parser_state.Advance(tok)
 
 			_itr += 1;

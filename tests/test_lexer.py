@@ -6,8 +6,6 @@ import unittest
 import sys
 import os
 
-
-
 class TestLexer(unittest.TestCase):
 
 	def check_token_integrity(self,tok,value_num,location_length):
@@ -56,11 +54,16 @@ class TestLexer(unittest.TestCase):
 		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kComment)
 		#self.assertTrue(tok[3][2] == 1)
 
-	def test_comment_line_ex(self):
-		tok = self.check_one_token("//comment\n",1,3)
+	def test_comment_block(self):
+		tok = self.check_one_token("/*asdasd*/",1,2)
+		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
+		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kComment)
+
+	def test_comment_block_ex(self):
+		tok = self.check_one_token("/*asd\"!@#$%\n^&*(\n)_+-=}{l;]['.m,/,./?><\nasd*/",1,3)
 		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag | _pc_utils.token_flags.k_endl_flag)
 		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kComment)
-		self.assertTrue(tok[3][2] == 1)
+		self.assertTrue(tok[3][2] == 3)
 
 	def test_identifier(self):
 		tok = self.check_one_token("abcASD",1,2)
@@ -89,7 +92,7 @@ class TestLexer(unittest.TestCase):
 	def test_file(self):
 		lexer = precompiler.createLexer()
 		fi = precompiler.createFileInterface(lexer)
-		token = fi.GetFileTokens(os.environ["TEST_FILE"])
+		token = fi.GetFileTokens(os.environ["LEXER_TEST_FILE"])
 		self.assertTrue(True) #at this point we did not throw any exception
 
 if __name__ == '__main__':

@@ -139,23 +139,28 @@ Adds a newline to the output.
 Syntax:
 - `#endl`
 
-Builtin defines
----------------
+Builtin macros
+--------------
 (TODO)
 
 1. `__FILE__` Return the current preprocessed file
 2. `__FILE_OUT__` Returns the ouput file
-3. `__STR_BOX__` Will collapse all tokens and box string
-4. `__WSIZE__` Will colapse all tokens and return the number of tokens (including whitespaces)
-5. `__SIZE__` same as `__WSIZE__` but excluding whitespaces
-6. `__VERSION__` Precompiler version
+3. `__STR_BOX__(ARG)` Will collapse all tokens and box string
+4. `__WSIZE__(ARG)` Will colapse all tokens and return the number of tokens (including whitespaces)
+5. `__SIZE__(ARG)` same as `__WSIZE__` but excluding whitespaces
+6. `__PCVER__` Precompiler version
 
 Python eval functions
---------------------
-(TODO)
+---------------------
 
-1. `defined(str)`
-
+1. `defined(str)` -> *True/False* - checks if a macro is defined or now
+2. `__SIZE__(str)` -> *Number* same as `__SIZE__` macro
+3. `__WSIZE__(str)` -> *Number* same as `__WSIZE__` macro
+4. `__STR_BOX__(str)` -> *Str* same as `__STR_BOX__` macro
+5. `__FILE__` -> *Path* same as `__FILE__` macro
+6. `__FILE_OUT__` -> *Path* same as `__FILE_OUT__` macro
+7. `value(str)` -> *Str* returnes the string value of a macro
+8. `tokens(str)` -> *[token]* returnes value of macro in the form of token list
 
 
 File search paths

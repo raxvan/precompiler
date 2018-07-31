@@ -131,13 +131,13 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		if toktype == _cmd_tokens.k_include:
 			self.precompiler.open_file_and_include(unboxed_str,tok)
 		elif toktype == _cmd_tokens.k_inline_include:
-			self.assembler.Write((_primitive_toks.kInlined,0,[self.precompiler.open_file_and_get_str(unboxed_str,tok)]))
+			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[self.precompiler.open_file_and_get_str(unboxed_str,tok)],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_inline_str:
-			self.assembler.Write((_primitive_toks.kInlined,0,[unboxed_str]))
+			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[unboxed_str],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_inline_eval:
 			result = self.precompiler.run_python_eval(tok,unboxed_str);
 			if(result != None):
-				self.assembler.Write((_primitive_toks.kInlined,0,[str(result)]))
+				self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[str(result)],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_error:
 			self.precompiler.RaiseErrorOnToken(tok,"User #error!",unboxed_str)
 		else:
@@ -200,12 +200,12 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		if (tokflags & _token_flags.k_conditional_flag) != 0:
 			if toktype == _cmd_tokens.k_if_defined:
 				if _is_executed:
-					_prep.push_execution_state(_prep.is_defined(_tok_value[0]))
+					_prep.push_execution_state(_prep.is_defined(_tok_value[1]))
 				else:
 					_prep.push_execution_state(None)
 			elif toktype == _cmd_tokens.k_if_not_defined:
 				if _is_executed:
-					cond = _prep.is_defined(_tok_value[0])
+					cond = _prep.is_defined(_tok_value[1])
 					_prep.push_execution_state(True if (cond == False) else False)
 				else:
 					_prep.push_execution_state(None)
@@ -246,7 +246,10 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			elif toktype == _cmd_tokens.k_define:
 				(_,name,content) = _tok_value
 				(arguments,value) = _prep.parse_define_content(tok,content);
-				_prep.add_new_define(tok,_impl_pc_define.VarDefine(name,arguments,value,tok,_prep))
+				if (tokflags & _token_flags.k_no_error) != 0:
+					_prep.add_new_define(tok,_impl_pc_define.VarDefine(name,arguments,value,tok,_prep),False)
+				else:
+					_prep.add_new_define(tok,_impl_pc_define.VarDefine(name,arguments,value,tok,_prep),True)
 
 
 			elif toktype == _cmd_tokens.k_colapse:
@@ -290,19 +293,17 @@ class _precompiler_backend(object):
 		self.active_condition = None
 		self.condition_stack = []
 
-		#eval and if eval context
-		self.eval_global_context = None
-		self.eval_user_context = None
-
 		#reading and writing files
 		self.file_interface = user_file_handler
 
-		#speed_maps to make life easier
-		self._trivial_set = None
-		self._arg_set = None
-		self._func_set = None
-
 		self.options = options if options != None else {}
+
+		#eval and if eval context
+		self.eval_user_context = self.options.get("EvalContext",None)
+
+		self._cached_eval_tok = None
+		self._cached_eval_ctx = None
+
 
 	def push_execution_state(self,is_condition_true):
 		self.condition_stack.append(is_condition_true)
@@ -337,23 +338,39 @@ class _precompiler_backend(object):
 
 		return self.active_condition
 
-	def get_eval_context(self):
-		if self.eval_global_context != None:
-			return self.eval_global_context
+	def _invalidate_eval_ctx(self):
+		self._cached_eval_ctx = None
 
-		self.eval_global_context = {}
-		self.eval_global_context["defined"] = lambda name_str: self.is_defined(name_str)
+	def prepare_eval_context(self,tok):
+		self._cached_eval_tok = tok
+		if self._cached_eval_ctx != None:
+			return self._cached_eval_ctx
+
+		self._cached_eval_ctx = {}
+		self._cached_eval_ctx["defined"] = lambda name_str: self.is_defined(name_str)
+		self._cached_eval_ctx["value"] = lambda name_str: self._ev_value(name_str)
+		self._cached_eval_ctx["tokens"] = lambda name_str: self._ev_tokens(name_str)
 
 		if self.eval_user_context != None:
-			self.eval_global_context.update(self.eval_user_context)
+			self._cached_eval_ctx.update(self.eval_user_context)
 
-		return self.eval_global_context
+		return self._cached_eval_ctx
+
+	def _ev_tok(self):
+		return self._cached_eval_tok
+
+	def _ev_value(self,name):
+		return self.get_required_define(self._ev_tok(),name).GetValueAsString();
+	def _ev_tokens(self,name):
+		return self.get_required_define(self._ev_tok(),name).GetValueAsTokens();
+
 
 	def run_python_eval(self,tok,raw_code):
-		global_eval_map = self.get_eval_context()
+		eval_ctx = self.prepare_eval_context(tok)
+
 		try:
 			#the context is passed as local because we don't want it to be poluted by `eval` function
-			result = eval(raw_code,None,global_eval_map)
+			result = eval(raw_code,None,eval_ctx)
 			return result
 		except SyntaxError as e:
 			self.RaiseErrorOnToken(tok,"SyntaxError!",str(e))
@@ -394,19 +411,21 @@ class _precompiler_backend(object):
 
 	def get_required_define(self,tok,define_name):
 		result = self.input_state.FindVarDefineWithName(define_name)
-		if result != None:
-			return result
+		if result == None:
+			self.RaiseErrorOnToken(tok,"No define found!","Search name [" + define_name + "]")
 
-		self.RaiseErrorOnToken(tok,"No define found!","Search name [" + define_name + "]")
+		return result
 
 	def is_defined(self,name):
 		if self.input_state.FindVarDefineWithName(name) != None:
 			return True
 		return False
 
-	def add_new_define(self,def_token,def_instance):
+	def add_new_define(self,def_token,def_instance,fail_if_defined):
 		if self.input_state.FindVarDefineWithName(def_instance.name) != None:
-			self.RaiseErrorOnToken(def_token,"Redefinition is not allowed!","Define name: `" + def_instance.name + "`")
+			if(fail_if_defined == True):
+				self.RaiseErrorOnToken(def_token,"Redefinition is not allowed!","Define name: `" + def_instance.name + "`")
+			self.input_state.RemoveDefineRecursive(def_instance.name)
 
 		self.input_state.AddGlobalDefine(def_instance)
 
@@ -428,7 +447,11 @@ class _precompiler_backend(object):
 	def open_file_and_include(self,strval,tok):
 
 		abs_file_path = self.evaluate_file_path(strval,tok)
+
 		content = self.file_interface.GetFileTokens(abs_file_path)
+
+		if self.options.get("MakeDependencyTree",False) == True:
+			self.depends.append((self.input_state.GetActiveSourceFile(),abs_file_path,len(content)))
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)

@@ -1,14 +1,12 @@
 
-import precompiler.default
 import precompiler
 import sys
+
 
 def test_file(infile,outfile,options):
 	lexer = precompiler.createLexer()
 	fi = precompiler.createFileInterface(lexer)
 	ctx = precompiler.createContext(fi,None)
-	ctx.Reset()
-
 	ctx.AddInputFile(infile)
 	ctx.SetOutputFile(outfile,options)
 	ctx.Run()
