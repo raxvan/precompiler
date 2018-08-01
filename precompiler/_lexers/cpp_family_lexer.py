@@ -38,8 +38,12 @@ g_exp_with_string_or_id_arg = {
 	'include' : 'INCL', #regular include
 	'inline-include' : 'INL_INCL', #include without processing
 
-	'inline-run' : 'INL_EVL', #execute code inplace
 	'inline' : 'INL_STR', #unbox the string (replace all \n with newlines, etc)
+}
+
+g_exp_on_line = {
+	'run' : 'RUN', #eats entire line
+	'inline-run' : 'INL_EVL', #execute code inplace
 }
 
 g_exp_with_string_args = {
@@ -72,7 +76,8 @@ tokens = g_trivial_tokens + [
 
 	'DEF', #eats entire line
 	'REDEF', #eats entire line
-	'RUN', #eats entire line
+
+	'EXP_ON_LINE', #eats entire line
 
 
 	'IF',
@@ -100,7 +105,8 @@ tokens = g_trivial_tokens + [
 	list(g_trivial_statements.values()) +
 	list(g_exp_with_id_arg.values()) +
 	list(g_exp_with_string_or_id_arg.values()) +
-	list(g_exp_with_string_args.values())
+	list(g_exp_with_string_args.values()) +
+	list(g_exp_on_line.values())
 ))
 
 _prep_flags = _pc_utils.token_flags
@@ -131,7 +137,9 @@ _prep_map = {
 	'ID' : ( _prep_tokens.kIdentifier, 0 ), #we consider id's non trivial in this case because
 
 	#non trivial stuff:
-	'RUN' : ( _prep_tokens_ex.k_run, _prep_flags.k_command_flag | _prep_flags.k_endl_flag),
+	'RUN' : ( _prep_tokens_ex.k_run, _prep_flags.k_command_flag),
+	'INL_EVL' : ( _prep_tokens_ex.k_inline_eval, _prep_flags.k_command_flag ),
+
 	'DEF' : ( _prep_tokens_ex.k_define, _prep_flags.k_command_flag | _prep_flags.k_endl_flag),
 	'REDEF' : ( _prep_tokens_ex.k_define, _prep_flags.k_command_flag | _prep_flags.k_no_error | _prep_flags.k_endl_flag ),
 
@@ -153,7 +161,6 @@ _prep_map = {
 	'ERR' : ( _prep_tokens_ex.k_error, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INCL' : ( _prep_tokens_ex.k_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INL_INCL' : ( _prep_tokens_ex.k_inline_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
-	'INL_EVL' : ( _prep_tokens_ex.k_inline_eval, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INL_STR' : ( _prep_tokens_ex.k_inline_str, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 }
 
@@ -204,10 +211,14 @@ def t_DEF(t):
 	return t
 
 #multiline, eats entire line except `\n`
-def t_RUN(t):
-	r'\#[ \t]*run[ \t]+(?P<content>.+?\n)(?#filler_comment_for_regex_length_________________)'
-
+def t_EXP_ON_LINE(t):
+	r'\#[ \t]*(?P<name>run|inline-run)[ \t]+(?P<content>[^\n]+)(?#filler_comment_for_regex_length_________________)'
+	name = t.lexer.lexmatch.group('name')
 	data = t.lexer.lexmatch.group('content');
+	t.type = g_exp_on_line.get(name,None)
+	if t.type == None:
+		RaiseError("Invalid precompiler expression!",name)
+
 	if data != None:
 		data = data.strip(' \t\n\r')
 		if data == "":

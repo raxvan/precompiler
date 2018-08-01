@@ -22,18 +22,26 @@
 #else
 	#run print("`#define _ data`->Ok")
 #endif
-#undef _
+
 //--------------------------------
-#define _ #data
+#redefine _ #data
 #if value("_") != "data":
 	#error "`#define _ #data` Failed"
 #else
 	#run print("`#define _ #data`->Ok")
 #endif
 
+//--------------------------------
+#redefine _ #123#>456
+#if value("_") != "123#>456":
+	#error "`#redefine _ #123#>456` Failed"
+#else
+	#run print("`#redefine _ #123#>456`->Ok")
+#endif
 
 //--------------------------------
 #define data #new_data
+#redefine _ data
 #colapse _
 #if value("_") != "new_data":
 	#error "`#colapse _` Failed"
@@ -41,6 +49,31 @@
 	#run print("`#colapse _`->Ok")
 #endif
 #undef data
+//--------------------------------
+#redefine _ #123#>456
+#colapse _
+#if value("_") != "123456":
+	#error "`#redefine _ #123#>456` Failed"
+#else
+	#run print("`#redefine _ #123#>456`->Ok")
+#endif
+//--------------------------------
+#redefine _ #123#.456
+#colapse _
+#if value("_") != "123456":
+	#error "`#redefine _ #123#.456` Failed"
+#else
+	#run print("`#redefine _ #123#.456`->Ok")
+#endif
+
+//--------------------------------
+#redefine _ #123#-456
+#colapse _
+#if value("_") != "123456":
+	#error "`#redefine _ #123#-456` Failed"
+#else
+	#run print("`#redefine _ #123#-456`->Ok")
+#endif
 
 //--------------------------------
 //--------------------------------
@@ -61,3 +94,10 @@
 	#run print("`colapse & #inline \"foo\\\"\\\"\"` -> Ok")
 #endif
 //--------------------------------
+#redefine _ ##inline-run 1+2
+#colapse _
+#if value("_") != "3":
+	#error "`colapse & #inline-run 1+2` Failed"
+#else
+	#run print("`colapse & #inline-run 1+2` -> Ok")
+#endif

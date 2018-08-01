@@ -134,10 +134,6 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[self.precompiler.open_file_and_get_str(unboxed_str,tok)],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_inline_str:
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[unboxed_str],_pc_utils.TokSource(tok)))
-		elif toktype == _cmd_tokens.k_inline_eval:
-			result = self.precompiler.run_python_eval(tok,unboxed_str);
-			if(result != None):
-				self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[str(result)],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_error:
 			self.precompiler.RaiseErrorOnToken(tok,"User #error!",unboxed_str)
 		else:
@@ -167,6 +163,19 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 
 		self.assembler = _impl_pc_output.VarDefineValueAssembler(df).SetNextAssembler(self.assembler)
 		self.precompiler.open_colapse(_impl_pc_iterator.ColapsedTokenInterator(tok,tokens,self.precompiler))
+
+	def _run_command(self,tok,inline_content):
+		result = self.precompiler._evaluate_tok(tok);
+		if(result != None):
+			if inline_content == True:
+				self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[str(result)],_pc_utils.TokSource(tok)))
+			else:
+				#todo: make function in pre
+				tokens = self.precompiler.file_interface.RetokenizeContent(str(result),_pc_utils.TokSource(tok))
+				next_iterator = _impl_pc_iterator.GeneratedTokenInterator(tokens)
+
+				if self.precompiler.input_state.PushState(next_iterator,None) == False:
+					self.precompiler.RaiseErrorOnToken(tok,"Stack overflow while executin #run!",None)
 
 	def Advance(self,tok):
 
@@ -251,14 +260,13 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 				else:
 					_prep.add_new_define(tok,_impl_pc_define.VarDefine(name,arguments,value,tok,_prep),True)
 
-
 			elif toktype == _cmd_tokens.k_colapse:
 				self._colapse_macro(tok)
 
-				#todo
-
 			elif toktype == _cmd_tokens.k_run:
-				_prep._preprocess_run_output(tok)
+				self._run_command(tok,False)
+			elif toktype == _cmd_tokens.k_inline_eval:
+				self._run_command(tok,True)
 
 			elif toktype == _cmd_tokens.k_cwstrip:
 				_prep.get_required_define(tok,_tok_value[1]).CwStrip()
@@ -460,15 +468,9 @@ class _precompiler_backend(object):
 		if push_result == False:
 			self.RaiseErrorOnToken(tok,"Stack overflow!","Current include `" + abs_file_path + "`.")
 
-	def _preprocess_run_output(self,tok):
+	def _evaluate_tok(self,tok):
 		_tok_value = tok[2]
-		result = self.run_python_eval(tok,_tok_value[1]);
-		if(result != None):
-			tokens = self.file_interface.RetokenizeContent(str(result),_pc_utils.TokSource(tok))
-			next_iterator = _impl_pc_iterator.GeneratedTokenInterator(tokens)
-
-			if self.input_state.PushState(next_iterator,None) == False:
-				self.RaiseErrorOnToken(tok,"Stack overflow while executin #run!",None)
+		return self.run_python_eval(tok,_tok_value[1]);
 
 	def _expand_define_with_evaluation(self,expanded_tok,def_to_expand,arg_map):
 		next_iterator = _impl_pc_iterator.GeneratedTokenInterator(def_to_expand.GetValueAsTokens())

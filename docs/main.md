@@ -95,10 +95,9 @@ Syntax:
 Runs python **eval** function and the output is not processed.
 
 Syntax:
-1. `#inline-run \w __STR__` -> The string is unboxed first and then passed to eval
-2. `#inline-run \w __ID__` -> The deifne value is passed directly
+1. `#inline-run \w __PY__\n`
 
-### run python code wtih evaluation
+### run
 Runs python **eval** function and the output is processed.
 
 Syntax:
