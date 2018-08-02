@@ -145,7 +145,7 @@ This tokens transform into a whitespace (space or tab)
 Syntax:
 1. `#n/` is a newline
 2. `#t/` is a tab
-3. `#s/` us a space
+3. `#s/` is a space
 
 ### empty separator
 Will be transformed into a whitespace token without any character. This can be used when you want to separate tokens whitout whitespace.
@@ -153,7 +153,7 @@ Will be transformed into a whitespace token without any character. This can be u
 Syntax:
 1. `#/`
 
-As an example `identifier1#Widentifier2` will generate two tokens without whitespaces
+As an example `identifier1#/Widentifier2` will generate two tokens without whitespaces
 
 
 Builtin macros
@@ -171,13 +171,14 @@ Python eval functions
 ---------------------
 
 1. `defined(str)` -> *True/False* - checks if a macro is defined or now
-2. `__SIZE__(str)` -> *Number* same as `__SIZE__` macro
-3. `__WSIZE__(str)` -> *Number* same as `__WSIZE__` macro
-4. `__STR_BOX__(str)` -> *Str* same as `__STR_BOX__` macro
-5. `__FILE__` -> *Path* same as `__FILE__` macro
-6. `__FILE_OUT__` -> *Path* same as `__FILE_OUT__` macro
-7. `value(str)` -> *Str* returnes the string value of a macro
-8. `tokens(str)` -> *[token]* returnes value of macro in the form of token list
+2. `value(str)` -> *Str* returnes the string value of a macro
+3. `tokens(str)` -> *[token]* returnes value of macro in the form of token list
+4. `__SIZE__(str)` -> *Number* same as `__SIZE__` macro
+5. `__WSIZE__(str)` -> *Number* same as `__WSIZE__` macro
+6. `__STR_BOX__(str)` -> *Str* same as `__STR_BOX__` macro
+7. `__FILE__` -> *Path* same as `__FILE__` macro
+8. `__FILE_OUT__` -> *Path* same as `__FILE_OUT__` macro
+
 
 
 File search paths
@@ -221,8 +222,6 @@ var x = 1 + 2
 #define BAR u BAR
 fu BAR // <- expands to infinity: 'fu u u u u u u u'
 ```
-
-
 
 Defines with arguments
 ----------------------
