@@ -22,6 +22,17 @@ Similar to the c preprocessor, the precompiler is a processing tool for generic 
 - [Precompiler commands](https://github.com/raxvan/precompiler/blob/master/docs/main.md)
 - [Python api](https://github.com/raxvan/precompiler/blob/master/docs/api_doc.md)
 
+### Quick setup
+
+You can use [docker](https://www.docker.com/):
+```
+git clone https://github.com/raxvan/precompiler.git precompiler
+cd precompiler
+./_run_tests_docker.sh
+```
+
+To get it to work outside docker you need to have python3 and [ply](https://github.com/dabeaz/ply) installed. To be able to `import precompiler` you need to add the precompiler git clone folder to `PYTHONPATH` enviroment variable.
+
 ## Quick Example
 
 ```
