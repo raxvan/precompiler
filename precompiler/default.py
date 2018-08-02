@@ -74,7 +74,7 @@ class context(_impl_pc_vm._precompiler_backend):
 			if tok == None:
 				break #end of input
 			#print(tok,"\n")
-			_parse_state = self.parser_state.Advance(tok)
+			self.parser_state = self.parser_state.Advance(tok)
 
 			_itr += 1;
 

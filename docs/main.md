@@ -1,6 +1,14 @@
 
-Builtin Commands
-----------------
+Tokens
+------
+
+Precompiler takes the source code and transforms it into token of certain types:
+1. basic tokens. This include identifiers, signs, comments, whitespaces, etc
+2. commands. They start with `#`
+3. separators. This include `#w` and `#/` , `#n` `#t` `#s` (explained below)
+
+Command tokens
+--------------
 
 For syntax, the mandatory whitespace (tabs and spaces) is marked with `\w` and newline is marked with `\n`.
 Tokens fall into certain cathegories:
@@ -122,21 +130,31 @@ Example:
 1. `#if defined("TEST") \n ...branch`
 2. `#if defined("TEST"): same line branch`
 
-### nop
-Directly ignored by the lexer, it's allow separation between tokens without whitespaces
+Separators
+----------
+
+### empty whitespace
+Captures the rest of the whitespaces and returns it as a regular whitespace. When used as define arguments this can be used as a delimiter.
 
 Syntax:
-1. `#-`
-2. `#.`
-3. `#>`
+1. `#w \w`
 
-As an example `identifier1#-identifier2` will generate two tokens without whitespaces
-
-### endl
-Adds a newline to the output.
+### whitespace
+This tokens transform into a whitespace (space or tab)
 
 Syntax:
-- `#endl`
+1. `#n/` is a newline
+2. `#t/` is a tab
+3. `#s/` us a space
+
+### empty separator
+Will be transformed into a whitespace token without any character. This can be used when you want to separate tokens whitout whitespace.
+
+Syntax:
+1. `#/`
+
+As an example `identifier1#Widentifier2` will generate two tokens without whitespaces
+
 
 Builtin macros
 --------------

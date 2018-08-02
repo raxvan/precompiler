@@ -23,17 +23,20 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 
 		self.scope_stack = []
 
-		self.expected_arguments = source_define.arguments_list.copy()
+		self.next_arguments = source_define.arguments_list.copy()
+
 		self.target_argument_name = None
+		self.target_aquired_content = False
 
 		self.arg_map = {}
 
 		self._shift_first()
 
-	def push_token(self,tok):
-		#handle scope stacks
+	def push_to_argument(self,tok):
+
+		#we must have an argument assigned here
 		if self.target_argument_name == None:
-			lh = self._get_look_ahead_token()
+			lh = self._get_look_ahead_arg_token()
 			assert lh != None, "Missing lookahead token!"
 			(_,_,expected_value,_) = lh
 			self.precompiler.RaiseErrorOnToken(tok,"Invalid arguments!","Expected [" + expected_value[0] + "]")
@@ -41,6 +44,11 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 		self.arg_map[self.target_argument_name].append(tok)
 
 		(tok_flags,tok_type,val,_) = tok
+
+		#measure non important tokens
+		if (tok_type != _primitive_toks.kWhitespace) and (tok_type != _primitive_toks.kWhitespace):
+			self.target_aquired_content = True #added one more argument
+
 		if tok_type == _cmd_tokens.k_scope_push:
 			self.scope_stack.append(tok_flags)
 		elif tok_type == _cmd_tokens.k_scope_pop:
@@ -51,42 +59,50 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 			self.scope_stack.pop()
 
 
-	def _get_look_ahead_token(self):
+	def _get_look_ahead_arg_token(self):
 		if len(self.scope_stack) > 0:
 			return None
-		if len(self.expected_arguments) == 0:
+		if len(self.next_arguments) == 0:
 			return None
-		return self.expected_arguments[0]
+		return self.next_arguments[0]
 
 	def _shift_first(self):
-		while len(self.expected_arguments) > 0:
-			(_,expected_type,expected_value,_) = self.expected_arguments[0]
+		while len(self.next_arguments) > 0:
+			(_,expected_type,expected_value,_) = self.next_arguments[0]
 			if expected_type != _primitive_toks.kIdentifier:
 				break;
 
 			self.target_argument_name = expected_value[0]
+			self.target_aquired_content = False
+
 			self.arg_map.setdefault(expected_value[0],[])
-			self.expected_arguments.pop(0)
+			self.next_arguments.pop(0)
 
 	def shift(self):
 		self.target_argument_name = None
-		self.expected_arguments.pop(0)
+		self.target_aquired_content = False
+		self.next_arguments.pop(0)
 		self._shift_first()
 
 	def get_exit_state(self):
-		if len(self.expected_arguments) == 0 and len(self.scope_stack) == 0:
+		if len(self.next_arguments) == 0 and len(self.scope_stack) == 0:
 			#we are done parsing arguments, expand macro and exit
 			self.precompiler._expand_define_with_evaluation(self.expanded_token,self.define,self.arg_map)
 			return self.parent_state
 		return self
 
 	def Advance(self,tok):
+
 		(_,toktype,value,_) = tok
 
-		lh = self._get_look_ahead_token()
+		lh = self._get_look_ahead_arg_token()
 
 		if lh == None:
-			self.push_token(tok)
+			#last token from arg list, push to argument and than exit
+			self.push_to_argument(tok)
+			if(self.target_aquired_content == False):
+				return self #because we did not get any valuable content, we wait 
+
 		else:
 			(_,expected_type,expected_value,_) = lh
 
@@ -94,7 +110,7 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 				#if we match the expected stuff we advance to next one
 				self.shift()
 			else:
-				self.push_token(tok)
+				self.push_to_argument(tok)
 
 		return self.get_exit_state()
 
@@ -142,6 +158,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		return self
 
 	def _expand_define(self,def_inst,tok):
+
 		if def_inst.RequiresArguments() == True:
 			result = _pc_argument_parser(self.precompiler,self,def_inst,tok)
 			return result

@@ -10,7 +10,6 @@ class VarDefine(object):
 		self.source_token = source_token #token that created this
 		self.preprocessor = preprocessor
 
-
 		if value_str_or_tokens == None:
 			#empty define
 			self.value_str = ""
@@ -64,6 +63,7 @@ class VarDefine(object):
 		tokens = self.GetValueAsTokens()
 		new_tokens = [t for t in tokens if t[1] != _pc_utils.primitive_tokens.kComment and t[1] != _pc_utils.primitive_tokens.kWhitespace]
 		self.value_tok_list = new_tokens
+		self.value_str = None
 
 ###########################################################################################################
 

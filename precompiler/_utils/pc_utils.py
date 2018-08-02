@@ -27,7 +27,9 @@ class token_flags:
 	k_endl_flag = 1<<7 #there is at least one newline in the token value.
 	k_inherited_location = 1<<8 #token location has an inherits location from another token
 
-	k_first_mask_index = 9
+	k_impostor = 1<<9
+
+	k_first_mask_index = 10
 	k_first_mask = (1<<(k_first_mask_index + 0)) | (1<<(k_first_mask_index + 1)) | (1<<(k_first_mask_index + 2))
 
 class precompiler_tokens:

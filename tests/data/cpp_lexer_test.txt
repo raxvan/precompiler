@@ -72,11 +72,13 @@ identifier
 #define a (_A,_B) #
 
 #cwstrip DEFINE
-#endl
 
-a#>b
-a#.b
-a#-b
+a#t b
+a#n b
+a#s b
+a#w b
+a#/b
+
 
 a,b,c
 (a,b,c)
@@ -120,5 +122,5 @@ a,b,c
 # define a # _A + _B
 # define a (_A,_B) #
 # cwstrip DEFINE
-# endl
+
 
