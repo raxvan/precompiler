@@ -21,8 +21,8 @@ Tokens fall into certain cathegories:
 Adds a named variable (macro) in the preprocessor. The value of the macro is nothing more than a list of tokens taken from the line of the definition (`__VALUE`):
 
 Syntax:
-1. `#define \w __ID__ [\w [_ARGUMENTS #] _VALUE] \n`
-3. `_ARGUMENTS` is optional along with the separator `#`
+1. `#define \w __ID__ [\w [_ARGUMENTS #/] _VALUE] \n`
+3. `_ARGUMENTS` is optional along with the separator `#/` separator. If multiple separators `#/` are present the first one is selected.
 4. `_VALUE` can be anything
 
 

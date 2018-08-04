@@ -124,11 +124,11 @@ _prep_tokens_ex = _pc_utils.precompiler_tokens
 _prep_map = {
 	'WHITE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ),
 	'WHITE_MULTILINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag ),
-	'CMD_SEPARATOR_EMPTY' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ),
+	'CMD_SEPARATOR_EMPTY' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_blank),
 
-	'CMD_TAB' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ) ,
-	'CMD_SPACE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ) ,
-	'CMD_NEWLINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ) ,
+	'CMD_TAB' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) ,
+	'CMDnSPACE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) ,
+	'CMD_NEWLINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor | _prep_flags.k_endl_flag ) ,
 	'CMD_CAPTURE_WHITE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) ,
 	'CMD_CAPTURE_WHITE_MULTILINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor | _prep_flags.k_endl_flag) ,
 
@@ -267,7 +267,7 @@ def t_CMD_WORD(t):
 	return t
 
 def t_CMD_SEPARATOR_EMPTY(t):
-	r'\#/(?#filler_comment_for_regex_length_________________________________________________________)'
+	r'\#/(?#filler_comment_for_regex_length__________________________________________________________________)'
 	t.value = [""]
 	return t
 
@@ -290,7 +290,7 @@ def t_CH_SEPARATOR_INTERNAL(t):
 		t.value = [" "]
 		t.type = 'CMD_SPACE'
 	elif exp == 'n':
-		t.value = ["\t"]
+		t.value = ["\n"]
 		t.type = 'CMD_NEWLINE'
 	else:
 		RaiseError("Invalid token while searching for separator!",t.value)

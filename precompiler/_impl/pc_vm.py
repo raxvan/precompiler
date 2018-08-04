@@ -507,20 +507,35 @@ class _precompiler_backend(object):
 		if content == None or content == "":
 			return (None,[])
 
-		hIndex = content.find("#")
-		if hIndex == -1:
-			#define has only content
-			return (None,content)
-		else:
-			arg_str = content[:hIndex].strip()
-			content_str = content[(hIndex + 1):].strip()
-			arg_list = None
-			if arg_str != "":
-				token_list = self.file_interface.RetokenizeContent(arg_str,tok)
-				arg_list = [( tok_flags, tok_tp, tok_value, tok_loc ) for ( tok_flags, tok_tp, tok_value, tok_loc ) in token_list if tok_tp != _primitive_toks.kWhitespace ]
+		token_list = self.file_interface.RetokenizeContent(content,tok)
 
-			return (arg_list,content_str)
+		first_list = []
+		second_list = None
 
+		split_lists = False
+		for ( tok_flags, tok_tp, tok_value, tok_loc ) in token_list:
+			if (tok_flags & _token_flags.k_blank) != 0:
+				#encountered blank
+				if split_lists == False:
+					#first blank
+					split_lists = True
+					second_list = []
+					continue;
+
+			if split_lists == False:
+				#no blank separator encountered
+				first_list.append(( tok_flags, tok_tp, tok_value, tok_loc ))
+			else:
+				second_list.append(( tok_flags, tok_tp, tok_value, tok_loc ))
+
+		if second_list == None:
+			return (None,first_list)
+		if len(first_list) == 0:
+			return (None,second_list)
+
+		arg_list = [( tok_flags, tok_tp, tok_value, tok_loc ) for ( tok_flags, tok_tp, tok_value, tok_loc ) in first_list if tok_tp != _primitive_toks.kWhitespace or (tok_flags & _token_flags.k_impostor) != 0]
+
+		return (arg_list,second_list)
 
 
 	def RaiseErrorOnToken(self,tok_tuple,message,variable_message):
