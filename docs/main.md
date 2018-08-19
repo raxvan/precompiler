@@ -5,7 +5,7 @@ Tokens
 Precompiler takes the source code and transforms it into token of certain types:
 1. basic tokens. This include identifiers, signs, comments, whitespaces, etc
 2. commands. They start with `#`
-3. separators. This include `#w` and `#/` , `#n` `#t` `#s` (explained below)
+3. separators. This include `#\w` and `#\e` , `#\n` `#\t` `#\s` (explained below). A special separator is `@` that is used to separate macro argument from value
 
 Command tokens
 --------------
@@ -21,7 +21,7 @@ Tokens fall into certain cathegories:
 Adds a named variable (macro) in the preprocessor. The value of the macro is nothing more than a list of tokens taken from the line of the definition (`__VALUE`):
 
 Syntax:
-1. `#define \w __ID__ [\w [_ARGUMENTS #/] _VALUE] \n`
+1. `#define \w __ID__ [\w [_ARGUMENTS $] _VALUE] \n`
 3. `_ARGUMENTS` is optional along with the separator `#/` separator. If multiple separators `#/` are present the first one is selected.
 4. `_VALUE` can be anything
 
@@ -53,7 +53,7 @@ Exampled:
 
 ```
 
-### cwstrip
+### cwstrip (comments and whitespaces strip)
 Takes a macro and removes all whitespaces and comment tokens from it's value.
 
 Syntax:
@@ -133,28 +133,26 @@ Example:
 Separators
 ----------
 
-### empty whitespace
-Captures the rest of the whitespaces and returns it as a regular whitespace. When used as define arguments this can be used as a delimiter.
+### forward whitespace
+Captures the rest of the whitespaces and returns it as token. When used as define arguments this can be used as a delimiter.
 
 Syntax:
 1. `#w \w`
 
 ### whitespace
-This tokens transform into a whitespace (space or tab)
+This tokens eat all whitespaces that follow them and result token is one of the following:
 
-Syntax:
-1. `#n/` is a newline
-2. `#t/` is a tab
-3. `#s/` is a space
+1. `#\n` is a newline
+2. `#\t` is a tab
+3. `#\s` is a space
 
 ### empty separator
-Will be transformed into a whitespace token without any character. This can be used when you want to separate tokens whitout whitespace.
+Will eat all following whitespaces be transformed into a token without any character. This can be used when you want to separate tokens whitout whitespace.
 
 Syntax:
-1. `#/`
+1. `#\e`
 
-As an example `identifier1#/Widentifier2` will generate two tokens without whitespaces
-
+As an example `identifier1#\e         Widentifier2` will generate two tokens separated by a blank whitespace token
 
 Builtin macros
 --------------
@@ -163,21 +161,17 @@ Builtin macros
 1. `__FILE__` Return the current preprocessed file
 2. `__FILE_OUT__` Returns the ouput file
 3. `__STR_BOX__(ARG)` Will collapse all tokens and box string
-4. `__WSIZE__(ARG)` Will colapse all tokens and return the number of tokens (including whitespaces)
+4. `__WSIZE__(tokens)` Will colapse all tokens and return the number of tokens left(including whitespaces)
 5. `__SIZE__(ARG)` same as `__WSIZE__` but excluding whitespaces
 6. `__PCVER__` Precompiler version
 
 Python eval functions
 ---------------------
 
-1. `defined(str)` -> *True/False* - checks if a macro is defined or now
-2. `value(str)` -> *Str* returnes the string value of a macro
-3. `tokens(str)` -> *[token]* returnes value of macro in the form of token list
-4. `__SIZE__(str)` -> *Number* same as `__SIZE__` macro
-5. `__WSIZE__(str)` -> *Number* same as `__WSIZE__` macro
-6. `__STR_BOX__(str)` -> *Str* same as `__STR_BOX__` macro
-7. `__FILE__` -> *Path* same as `__FILE__` macro
-8. `__FILE_OUT__` -> *Path* same as `__FILE_OUT__` macro
+1. `defined(macro_name_str)` -> *True/False* - checks if a macro with name `macro_name_str` is defined or not
+2. `value(macro_name_str)` -> *Str* returnes the string value of a macro named `macro_name_str`. Returns None if macro does not exist
+3. `tokens(macro_name_str)` -> *[token]* returnes value of macro named `macro_name_str` in the form of token list. None if macro does not exist
+
 
 
 
@@ -229,7 +223,7 @@ Defines with arguments
 Example:
 ```
 //source
-#define ADD(A,B,C) # A + B + C
+#define ADD(A,B,C) @ A + B + C
 var x = ADD(index,1,offset)
 ```
 ```
@@ -244,7 +238,7 @@ The tokens that are given for arguments are stored in a temporary define with th
 
 **Be carefull not to create infinite loops with argument names**:
 ```
-#define ADD(ARG) # 1 + ARG
+#define ADD(ARG) @ 1 + ARG
 
 ADD(2 + ARG) // <- 'ADD(2 + ARG)' is first expanded into '2 + ARG'
 //and because ARG is a define that holds '2 + ARG' -> infinite loop: '1 + 2 + 2 + 2 + 2 + ...'
@@ -279,7 +273,7 @@ This onditional commands are always evaluated:
 The rest of the tokens and commands are ignored if they are on a *false* branch. In the following example there have be no output tokens bacause the define is not expanded in the false branch:
 
 ```
-#define CUSTOM_ELSE # #else
+#define CUSTOM_ELSE @ #else
 
 #if False:
 	yes

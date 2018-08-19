@@ -490,15 +490,17 @@ class _precompiler_backend(object):
 		return self.run_python_eval(tok,_tok_value[1]);
 
 	def _expand_define_with_evaluation(self,expanded_tok,def_to_expand,arg_map):
-		next_iterator = _impl_pc_iterator.GeneratedTokenInterator(def_to_expand.GetValueAsTokens())
+		(tokens,arguments) = def_to_expand.Expand(expanded_tok,arg_map,self);
 
 		next_define_map = None
-		if arg_map != None:
+		if arguments != None:
 			next_define_map = _impl_pc_define.VarDefineMap()
 			#each define must have unique name!
-			for (name,toklist) in arg_map.items():
-				d = _impl_pc_define.VarDefine(name,None,toklist,expanded_tok,self)
+			for d in arguments:
+				#d = _impl_pc_define.VarDefine(name,None,toklist,expanded_tok,self)
 				next_define_map.TryAddLocalDefine(d)
+
+		next_iterator = _impl_pc_iterator.GeneratedTokenInterator(tokens)
 
 		if self.input_state.PushState(next_iterator,next_define_map) == False:
 			self.RaiseErrorOnToken(expanded_tok,"Stack overflow while expanding identifier!",None)

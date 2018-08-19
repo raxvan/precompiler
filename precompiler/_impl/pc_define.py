@@ -59,11 +59,29 @@ class VarDefine(object):
 			return True
 		return False
 
+	def TokenCount(self):
+		tokens = self.GetValueAsTokens()
+		return len(tokens)
+
+	def TokenCountNoCW(self):
+		tokens = self.GetValueAsTokens()
+		sz = 0
+		for t in tokens:
+			if t[1] != _pc_utils.primitive_tokens.kComment and t[1] != _pc_utils.primitive_tokens.kWhitespace:
+				sz += 1
+		return sz
+
 	def CwStrip(self):
 		tokens = self.GetValueAsTokens()
 		new_tokens = [t for t in tokens if t[1] != _pc_utils.primitive_tokens.kComment and t[1] != _pc_utils.primitive_tokens.kWhitespace]
 		self.value_tok_list = new_tokens
 		self.value_str = None
+
+	def Expand(self,expand_tok,arguments_map,_pc):
+		if arguments_map != None:
+			return (self.GetValueAsTokens(),[VarDefine(name,None,toklist,expand_tok,_pc) for (name,toklist) in arguments_map.items()])
+		return (self.GetValueAsTokens(),None)
+
 
 ###########################################################################################################
 

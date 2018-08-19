@@ -76,6 +76,7 @@ g_separators = [
 	'CMD_SPACE',
 	'CMD_NEWLINE',
 	'CMD_CAPTURE_WHITE',
+	'CMD_FUUUUUU'
 ]
 
 tokens = g_trivial_tokens + [
@@ -124,13 +125,15 @@ _prep_tokens_ex = _pc_utils.precompiler_tokens
 _prep_map = {
 	'WHITE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag ),
 	'WHITE_MULTILINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag ),
-	'CMD_SEPARATOR_EMPTY' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_blank),
 
-	'CMD_TAB' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) ,
-	'CMDnSPACE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) ,
-	'CMD_NEWLINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor | _prep_flags.k_endl_flag ) ,
-	'CMD_CAPTURE_WHITE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) ,
-	'CMD_CAPTURE_WHITE_MULTILINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor | _prep_flags.k_endl_flag) ,
+	'CMD_FUUUUUU' : ( _prep_tokens.kWhitespace, _prep_flags.k_blank),
+
+	'CMD_SEPARATOR_EMPTY' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor), #whitespace impostor
+	'CMD_TAB' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) , #whitespace impostor
+	'CMD_SPACE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) , #whitespace impostor
+	'CMD_NEWLINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor | _prep_flags.k_endl_flag ) , #whitespace impostor
+	'CMD_CAPTURE_WHITE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor ) , #whitespace impostor
+	'CMD_CAPTURE_WHITE_MULTILINE' : ( _prep_tokens.kWhitespace, _prep_flags.k_trivial_flag | _prep_flags.k_impostor | _prep_flags.k_endl_flag) , #whitespace impostor
 
 	'LINE_COMMENT' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag ),
 	'LINE_COMMENT_MULTILINE' : ( _prep_tokens.kComment, _prep_flags.k_trivial_flag | _prep_flags.k_endl_flag ),
@@ -266,19 +269,22 @@ def t_CMD_WORD(t):
 	assert(t.type != None)
 	return t
 
-def t_CMD_SEPARATOR_EMPTY(t):
-	r'\#/(?#filler_comment_for_regex_length__________________________________________________________________)'
+def t_CMD_FUUUUUU(t):
+	r'@'
 	t.value = [""]
 	return t
 
 def t_CH_SEPARATOR_INTERNAL(t):
-	r'\#(?P<exp>[tsnw])(?P<extra>[ \t]+)(?#filler_comment_for_regex_length_________________________________________________________)'
+	r'\#\\(?P<exp>[tsnwe])(?P<extra>[ \t\n]+)(?#filler_comment_for_regex_length_________________________________________________________)'
+
+	newline_count = t.value.count("\n")
+	if newline_count != 0:
+		t.lexer.lineno += newline_count
+
 	exp = t.lexer.lexmatch.group('exp')
 	if exp == 'w':
 		vl = t.lexer.lexmatch.group('extra')
-		newline_count = vl.count("\n")
 		if newline_count != 0:
-			t.lexer.lineno += newline_count
 			t.type = 'CMD_CAPTURE_WHITE_MULTILINE'
 		else:
 			t.type = 'CMD_CAPTURE_WHITE'
@@ -292,6 +298,9 @@ def t_CH_SEPARATOR_INTERNAL(t):
 	elif exp == 'n':
 		t.value = ["\n"]
 		t.type = 'CMD_NEWLINE'
+	elif exp == 'e':
+		t.value = [""]
+		t.type = 'CMD_SEPARATOR_EMPTY'
 	else:
 		RaiseError("Invalid token while searching for separator!",t.value)
 	return t
@@ -385,7 +394,7 @@ _ch_type_map = {
 }
 
 def t_TOK_CH_EX_INTERNAL(t):
-	r'[(){}<>\[\]]'
+	r'[(){}\[\]]'
 	t.type = _ch_type_map[t.value]
 	t.value = [t.value]
 	return t
