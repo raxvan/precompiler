@@ -152,18 +152,18 @@ Will eat all following whitespaces be transformed into a token without any chara
 Syntax:
 1. `#\e`
 
-As an example `identifier1#\e         Widentifier2` will generate two tokens separated by a blank whitespace token
+As an example `identifier1#\e         Widentifier2` will generate two tokens separated by a blank whitespace token : `identifier1Widentifier2`
 
 Builtin macros
 --------------
-(TODO)
 
-1. `__FILE__` Return the current preprocessed file
-2. `__FILE_OUT__` Returns the ouput file
-3. `__STR_BOX__(ARG)` Will collapse all tokens and box string
-4. `__WSIZE__(tokens)` Will colapse all tokens and return the number of tokens left(including whitespaces)
-5. `__SIZE__(ARG)` same as `__WSIZE__` but excluding whitespaces
-6. `__PCVER__` Precompiler version
+1. `__FILE__` Return the absolute path to the current preprocessed file as string token
+2. `__FILENAME__` Return the name of the current preprocessed file as string token
+3. `__FILEROOT__` Return the absolute path of the file folder as string token
+4. `__PCVER__` Precompiler internal version as string (ex "0.1.2")
+5. `__PCVER_HIGH__` Precompiler internal version as int number (ex 0)
+6. `__PCVER_LOW__` Precompiler internal version as float number (ex 1.2)
+7. `__LINE__` Current line as number
 
 Python eval functions
 ---------------------
@@ -171,8 +171,6 @@ Python eval functions
 1. `defined(macro_name_str)` -> *True/False* - checks if a macro with name `macro_name_str` is defined or not
 2. `value(macro_name_str)` -> *Str* returnes the string value of a macro named `macro_name_str`. Returns None if macro does not exist
 3. `tokens(macro_name_str)` -> *[token]* returnes value of macro named `macro_name_str` in the form of token list. None if macro does not exist
-
-
 
 
 File search paths

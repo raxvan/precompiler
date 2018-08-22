@@ -91,7 +91,7 @@ class DefaultFileManager(object):
 		file_str = self.GetFileStr(abs_file_path)
 
 		start_time = time.time()
-		tokens = self.lexer_interface.StringTokenize(abs_file_path,file_str,None,0)
+		tokens = self.lexer_interface.StringTokenize(abs_file_path,file_str,None)
 		end_time = time.time()
 
 		self.file_tok_cache[abs_file_path] = tokens
@@ -99,11 +99,9 @@ class DefaultFileManager(object):
 
 		return tokens
 
-
-	def RetokenizeContent(self,content_str, inherited_location):
-		file = inherited_location[0]
-		offset = inherited_location[1]
-		return self.lexer_interface.StringTokenize(file,content_str,None,offset)
+	def RetokenizeContent(self,content_str, inherited_token):
+		file = _pc_utils.TokSource(inherited_token)[0]
+		return self.lexer_interface.StringTokenize(file,content_str,inherited_token)
 
 	def FormatPathIdentifier(self,name):
 		env_value = os.environ.get(name.upper(),None)

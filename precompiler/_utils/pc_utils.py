@@ -25,7 +25,7 @@ class token_flags:
 	k_no_error = 1<<6 #some commands are more strict, this flag is in case an alternavie should be used
 
 	k_endl_flag = 1<<7 #there is at least one newline in the token value.
-	k_inherited_location = 1<<8 #token location has an inherits location from another token
+	k_child_token = 1<<8 #token holds in location the source token
 
 	k_impostor = 1<<9 #for tokens that start wtih `#` but represent primitive tokens
 	k_blank = 1<<10 #blank tokens is `#/`
@@ -76,17 +76,26 @@ class SourceCodeError(Exception):
 
 ##########################################################################################################
 
-def FormatFileLocation(abs_source_file,line, message, variable_message):
+def FormatFileLocation(abs_source_file,line):
+	return abs_source_file + "(" + str(line + 1) + ")"
+
+def FormatErrorMessage(message,variable_message):
 	if variable_message != None:
-		return abs_source_file + "(" + str(line) + "):" + message + "\n" + variable_message
-	return abs_source_file + "(" + str(line) + "):" + message
+		return message + "\n" + variable_message
+	return message
 
 def RaiseErrorAtLocation(source_file,line,message,variable_message):
-	raise SourceCodeError(None,FormatFileLocation(source_file,line + 1,message,variable_message))
+	raise SourceCodeError(None,"Error At:\n" + FormatFileLocation(source_file,line) + ":\n" + FormatErrorMessage(message,variable_message))
 
 def RaiseErrorAtToken(tok,message,variable_message):
-	(_,_,_,source_loc) = tok
-	raise SourceCodeError(tok,FormatFileLocation(source_loc[0],source_loc[1] + 1,message,variable_message))
+	(tok_flags,_,tok_value,source_loc) = tok
+	location = FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
+	while (tok_flags & token_flags.k_child_token) != 0:
+		tok = source_loc[2]
+		#print(tok)
+		(tok_flags,_,tok_value,source_loc) = tok
+		location = location + "\n" + FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
+	raise SourceCodeError(tok,"Error At:\n" + location + "\nInfo:" + FormatErrorMessage(message,variable_message))
 
 
 ##########################################################################################################
@@ -95,13 +104,19 @@ def RaiseErrorAtToken(tok,message,variable_message):
 def TokListJoinValue(tok_list):
 	return "".join([value[0] for (_,_,value,_) in tok_list])
 
+def RelocateTokenAtExpandedToken(original_token,token_with_new_location):
+	expanded_location = TokSource(token_with_new_location)
+	new_location = [expanded_location[0],expanded_location[1],original_token]
+
+	(tok_flags, tok_tp, tok_value, tok_loc) = original_token
+
+	new_flags = tok_flags | token_flags.k_child_token
+	return (new_flags, tok_tp, tok_value, new_location)
+
+
 def TokSource(tok):
 	(_,_,_,location) = tok
 	return location
-
-def TokValue(tok):
-	(_,_,value,_,line) = tok
-	return value
 
 def ValidateIdentifier(str_value):
 	global _identifier_regex
