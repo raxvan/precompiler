@@ -35,6 +35,7 @@ class context(_impl_pc_vm._precompiler_backend):
 
 	#reset parsing and
 	def AddInputFile(self,abs_file_path):
+		self.init_default_macros()
 		file_token_iterator = _impl_pc_iterator.FileTokenInterator(self.file_interface.GetFileTokens(abs_file_path),abs_file_path,[])
 		self.input_state.PushState(file_token_iterator,None)
 

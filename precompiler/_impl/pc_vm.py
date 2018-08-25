@@ -3,7 +3,9 @@
 import precompiler._impl.pc_define as _impl_pc_define
 import precompiler._impl.pc_iterator as _impl_pc_iterator
 import precompiler._impl.pc_output as _impl_pc_output
+import precompiler._impl.pc_default_macros as _pc_macros
 import precompiler._utils.pc_utils as _pc_utils
+
 
 import timeit
 
@@ -23,7 +25,7 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 
 		self.scope_stack = []
 
-		self.next_arguments = source_define.arguments_list.copy()
+		self.next_arguments = source_define.GetRequiredArguments().copy()
 
 		self.target_argument_name = None
 		self.target_aquired_content = False
@@ -158,8 +160,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		return self
 
 	def _expand_define(self,def_inst,tok):
-
-		if def_inst.RequiresArguments() == True:
+		if def_inst.GetRequiredArguments() != None:
 			result = _pc_argument_parser(self.precompiler,self,def_inst,tok)
 			return result
 		else:
@@ -175,7 +176,13 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 	def _colapse_macro(self,tok):
 		_tok_value = tok[2]
 		df = self.precompiler.get_required_define(tok,_tok_value[1])
-		tokens = df.GetValueAsTokens();
+
+		if df.IsBuiltin() == True:
+			self.precompiler.RaiseErrorOnToken(tok,"#colapse does not work on builtin macros!",df.name)
+		if df.GetRequiredArguments() != None:
+			self.precompiler.RaiseErrorOnToken(tok,"#colapse does not work on macros that require arguments!",df.name)
+
+		tokens = df.GetValueAsTokens(tok)
 		df.ClearValue();
 
 		self.assembler = _impl_pc_output.VarDefineValueAssembler(df).SetNextAssembler(self.assembler)
@@ -188,7 +195,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 				self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[str(result)],_pc_utils.TokSource(tok)))
 			else:
 				#todo: make function in pre
-				tokens = self.precompiler.file_interface.RetokenizeContent(str(result),_pc_utils.TokSource(tok))
+				tokens = self.precompiler.file_interface.RetokenizeContent(str(result),tok)
 				next_iterator = _impl_pc_iterator.GeneratedTokenInterator(tokens)
 
 				if self.precompiler.input_state.PushState(next_iterator,None) == False:
@@ -329,6 +336,8 @@ class _precompiler_backend(object):
 		self._cached_eval_tok = None
 		self._cached_eval_ctx = None
 
+		self._default_macros = None
+
 
 	def push_execution_state(self,is_condition_true):
 		self.condition_stack.append(is_condition_true)
@@ -385,9 +394,12 @@ class _precompiler_backend(object):
 		return self._cached_eval_tok
 
 	def _ev_value(self,name):
-		return self.get_required_define(self._ev_tok(),name).GetValueAsString();
+		et = self._ev_tok()
+		return self.get_required_define(et,name).GetValueAsString(et);
+
 	def _ev_tokens(self,name):
-		return self.get_required_define(self._ev_tok(),name).GetValueAsTokens();
+		et = self._ev_tok()
+		return self.get_required_define(et,name).GetValueAsTokens(et);
 
 
 	def run_python_eval(self,tok,raw_code):
@@ -490,15 +502,14 @@ class _precompiler_backend(object):
 		return self.run_python_eval(tok,_tok_value[1]);
 
 	def _expand_define_with_evaluation(self,expanded_tok,def_to_expand,arg_map):
-		(tokens,arguments) = def_to_expand.Expand(expanded_tok,arg_map,self);
-
 		next_define_map = None
-		if arguments != None:
+		tokens = def_to_expand.GetValueAsTokens(expanded_tok)
+
+		if arg_map != None:
 			next_define_map = _impl_pc_define.VarDefineMap()
-			#each define must have unique name!
-			for d in arguments:
-				#d = _impl_pc_define.VarDefine(name,None,toklist,expanded_tok,self)
-				next_define_map.TryAddLocalDefine(d)
+			for (name,toklist) in arg_map.items():
+				arg_def = _impl_pc_define.VarDefineStatic(name,toklist,expanded_tok,self)
+				next_define_map.TryAddLocalDefine(arg_def)
 
 		next_iterator = _impl_pc_iterator.GeneratedTokenInterator(tokens)
 
@@ -538,6 +549,22 @@ class _precompiler_backend(object):
 		arg_list = [( tok_flags, tok_tp, tok_value, tok_loc ) for ( tok_flags, tok_tp, tok_value, tok_loc ) in first_list if tok_tp != _primitive_toks.kWhitespace or (tok_flags & _token_flags.k_impostor) != 0]
 
 		return (arg_list,second_list)
+
+	def _add_builtin_macro(self,mc):
+		self._default_macros[mc.name] = mc
+		self.input_state.AddGlobalDefine(mc)
+
+	def init_default_macros(self):
+		if self._default_macros != None:
+			return
+		self._default_macros = {}
+		self._add_builtin_macro(_pc_macros.macro__FILE__(self))
+		self._add_builtin_macro(_pc_macros.macro__FILENAME__(self))
+		self._add_builtin_macro(_pc_macros.macro__FILEROOT__(self))
+		self._add_builtin_macro(_pc_macros.macro__PCVER__(self))
+		self._add_builtin_macro(_pc_macros.macro__PCVER_HIGH__(self))
+		self._add_builtin_macro(_pc_macros.macro__PCVER_LOW__(self))
+		self._add_builtin_macro(_pc_macros.macro__LINE__(self))
 
 
 	def RaiseErrorOnToken(self,tok_tuple,message,variable_message):

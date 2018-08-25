@@ -69,7 +69,7 @@ varying lowp vec4 v_VertexColor;
 	uniform(lowp,vec4) u_DefaultColor;
 	//^ 'uniform' macro can capture identifier 'u_DefaultColor' as argument
 #else
-	#define u_DefaultColor # 1.0
+	#define u_DefaultColor 1.0
 #endif
 void main()
 {
@@ -127,14 +127,8 @@ Having such a tool available to the developer with even more functionality was t
 
 The short term todo list:
 
-- Built-in macros implementation (`__FILE__`, `__LINE__`)
 - Documentation
 - Tests for all errors
 - Tests for more complex scenarios
 - Proper dependency tree generation
 - Examples
-
-## Known issues
-
-- Token line numbers are incorrect.
-- Generated files has incorrect spacing.

@@ -28,7 +28,6 @@ class VarDefineValueAssembler(PreprocessorAssemblerStack):
 		return self.target.name
 
 	def Close(self):
-		#print(self.target.GetValueAsTokens());
 		pass
 
 

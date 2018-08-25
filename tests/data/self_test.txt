@@ -106,7 +106,7 @@
 //Tests defines with arguments
 #define test ARG0@-ARG0-
 #redefine _ @test foo
-#colapse _ //should become
+#colapse _
 #if value("_") != "- foo-":
 	#error "`#define test ARG0@-ARG0- & #colapse test foo` Failed"
 #else
@@ -147,5 +147,19 @@
 	#error "`#define test(a,b)@a+b & #colapse test({1,2},2)` Failed"
 #else
 	#run print("`#define test(a,b)@a+b & #colapse test({1,2},2)` -> Ok")
+#endif
+
+//------------------------------------------------------------
+#redefine _ __FILENAME__
+#colapse _
+#if value("_") != '"self_test.txt"':
+	#error "`#redefine _ __FILENAME__ & #colapse _` Failed"
+#else
+	#run print("`#redefine _ __FILENAME__ & #colapse _` -> Ok")
+#endif
+#if value("__LINE__") != '160':
+	#error '`value("__LINE__") != "?"` Failed'
+#else
+	#run print('`value("__LINE__") != "?"` -> Ok')
 #endif
 

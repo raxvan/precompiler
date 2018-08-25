@@ -410,7 +410,7 @@ def t_eof(t):
 
 g_lexer = lex.lex()
 
-def StringTokenize(source_identifier,content, inherited_location, offset ):
+def StringTokenize(source_identifier,content, parent_token ):
 	if(content == ""):
 		return []
 
@@ -428,7 +428,7 @@ def StringTokenize(source_identifier,content, inherited_location, offset ):
 
 	while True:
 		current_line = g_lexer.lineno
-		tok_loc = [source_identifier,current_line + offset]
+		tok_loc = [source_identifier,current_line]
 		tok = g_lexer.token()
 
 		if not tok:
@@ -440,12 +440,12 @@ def StringTokenize(source_identifier,content, inherited_location, offset ):
 
 		(tok_tp,tok_flags) = translated_tok
 
-		if tok_flags & _prep_flags.k_endl_flag:
-			tok_loc.append(g_lexer.lineno - current_line)
+		#if tok_flags & _prep_flags.k_endl_flag:
+		#	tok_loc.append(g_lexer.lineno - current_line)
 
-		if inherited_location != None:
-			tok_flags = tok_flags | _prep_flags.k_inherited_location
-			tok_loc.append(inherited_location)
+		if parent_token != None:
+			tok_flags = tok_flags | _prep_flags.k_child_token
+			tok_loc.append(parent_token)
 
 		result.append(( tok_flags, tok_tp, tok.value, tok_loc ))
 
