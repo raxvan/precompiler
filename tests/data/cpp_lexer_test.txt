@@ -17,7 +17,7 @@ identifier
 )
 [
 ]
-*!@$%^&*()_+:<>,./.?>[];\|~`
+*!%^&*()_+:<>,./.?>[];\|~`
 
 "string"
 'lowstring'
@@ -62,14 +62,14 @@ identifier
 #define a
 #define a 1
 #define a 1 + 2
-#define a _A _B @ _A + _B
-#define a (_A,_B) @ _A + _B
+#define a _A _B $ _A + _B
+#define a (_A,_B) $ _A + _B
 #define a(
 #define a+
 #define a#
 
-#define a @ _A + _B
-#define a (_A,_B) @
+#define a $ _A + _B
+#define a (_A,_B) $
 
 #cwstrip DEFINE
 
@@ -113,13 +113,13 @@ a,b,c
 # define a
 # define a 1
 # define a 1 + 2
-# define a _A _B @ _A + _B
-# define a (_A,_B) @ _A + _B
+# define a _A _B $ _A + _B
+# define a (_A,_B) $ _A + _B
 # define a(
 # define a+
-# define a@
-# define a @ _A + _B
-# define a (_A,_B) @
+# define a$
+# define a $ _A + _B
+# define a (_A,_B) $
 # cwstrip DEFINE
 
 

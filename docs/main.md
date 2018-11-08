@@ -5,7 +5,7 @@ Tokens
 Precompiler takes the source code and transforms it into token of certain types:
 1. basic tokens. This include identifiers, signs, comments, whitespaces, etc
 2. commands. They start with `#`
-3. separators. This include `#\w` and `#\e` , `#\n` `#\t` `#\s` (explained below). A special separator is `@` that is used to separate macro argument from value
+3. separators. This include `#\w` and `#\e` , `#\n` `#\t` `#\s` (explained below). A special separator is `$` that is used to separate macro argument from value
 
 Command tokens
 --------------
@@ -22,7 +22,7 @@ Adds a named variable (macro) in the preprocessor. The value of the macro is not
 
 Syntax:
 1. `#define \w __ID__ [\w [_ARGUMENTS $] _VALUE] \n`
-3. `_ARGUMENTS` is optional along with the separator `#/` separator. If multiple separators `#/` are present the first one is selected.
+3. `_ARGUMENTS` is optional along with the separator `$` separator. If multiple separators `$` are present the first one is selected.
 4. `_VALUE` can be anything
 
 
@@ -164,13 +164,15 @@ Builtin macros
 5. `__PCVER_HIGH__` Precompiler internal version as int number (ex 0)
 6. `__PCVER_LOW__` Precompiler internal version as float number (ex 1.2)
 7. `__LINE__` Current line as number
+7. `__NOW_TIME__` Current time as string. Format `%I-%M%p-%b-%d` (note that time is queried when macro is expanded)
+
 
 Python eval functions
 ---------------------
 
-1. `defined(macro_name_str)` -> *True/False* - checks if a macro with name `macro_name_str` is defined or not
-2. `value(macro_name_str)` -> *Str* returnes the string value of a macro named `macro_name_str`. Returns None if macro does not exist
-3. `tokens(macro_name_str)` -> *[token]* returnes value of macro named `macro_name_str` in the form of token list. None if macro does not exist
+1. `defined(macro_name_str)` -> *True/False* > checks if a macro with name `macro_name_str` is defined or not
+2. `value(macro_name_str)` -> *Str* > returnes the string value of a macro named `macro_name_str`. Returns None if macro does not exist
+3. `tokens(macro_name_str)` -> *[token]* > returnes value of macro named `macro_name_str` in the form of token list. None if macro does not exist
 
 
 File search paths
@@ -187,7 +189,7 @@ Example:
 File paths given to `include` or to `#inline-include` are searched in the following order:
 
 1. First the patch is checked if it exists (unprocessed, note that current working directory could also affect this result)
-2. File that includes folder + include path. This is useful relative to your file searches `"../engine/whatever.h"`
+2. folder of the current processed file + include path. This is useful relative to your file searches `"../engine/whatever.h"`
 3. All file manager search paths (provided in file manager) + include path
 
 Order of evaluation and defines
@@ -221,7 +223,7 @@ Defines with arguments
 Example:
 ```
 //source
-#define ADD(A,B,C) @ A + B + C
+#define ADD(A,B,C) $ A + B + C
 var x = ADD(index,1,offset)
 ```
 ```
@@ -236,7 +238,7 @@ The tokens that are given for arguments are stored in a temporary define with th
 
 **Be carefull not to create infinite loops with argument names**:
 ```
-#define ADD(ARG) @ 1 + ARG
+#define ADD(ARG) $ 1 + ARG
 
 ADD(2 + ARG) // <- 'ADD(2 + ARG)' is first expanded into '2 + ARG'
 //and because ARG is a define that holds '2 + ARG' -> infinite loop: '1 + 2 + 2 + 2 + 2 + ...'
@@ -245,7 +247,7 @@ ADD(2 + ARG) // <- 'ADD(2 + ARG)' is first expanded into '2 + ARG'
 Arguments are also separated by scopes: `()` `[]` `{}`
 Example:
 ```
-#define ALL_EQUIVALENT (A,B)
+#define ALL_EQUIVALENT (A,B) $
 ALL_EQUIVALENT((1,b),c) //expands into nothing
 ALL_EQUIVALENT([1,b],c) //expands into nothing
 ALL_EQUIVALENT({1,b},c) //expands into nothing
@@ -271,7 +273,7 @@ This onditional commands are always evaluated:
 The rest of the tokens and commands are ignored if they are on a *false* branch. In the following example there have be no output tokens bacause the define is not expanded in the false branch:
 
 ```
-#define CUSTOM_ELSE @ #else
+#define CUSTOM_ELSE $ #else
 
 #if False:
 	yes

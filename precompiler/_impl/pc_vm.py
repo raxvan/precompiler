@@ -565,6 +565,7 @@ class _precompiler_backend(object):
 		self._add_builtin_macro(_pc_macros.macro__PCVER_HIGH__(self))
 		self._add_builtin_macro(_pc_macros.macro__PCVER_LOW__(self))
 		self._add_builtin_macro(_pc_macros.macro__LINE__(self))
+		self._add_builtin_macro(_pc_macros.macro__NOW_TIME__(self))
 
 
 	def RaiseErrorOnToken(self,tok_tuple,message,variable_message):

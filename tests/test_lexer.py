@@ -19,7 +19,6 @@ class TestLexer(unittest.TestCase):
 		lexer = precompiler.createLexer()
 		tokens = lexer.StringTokenize("test_path",check_string,None)
 
-		#print(">>>>>>>>>>",tokens)
 		self.assertTrue(len(tokens) == 1)
 		tok = tokens[0]
 		self.check_token_integrity(tok,expected_values,expected_location);

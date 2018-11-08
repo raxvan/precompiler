@@ -46,6 +46,8 @@ class macro__NUMBER__(_builtin_macro):
 		return [result_token]
 
 ##############################################################################################################
+##############################################################################################################
+
 class macro__FILE__(macro__STRINGS__):
 	def __init__(self, preprocessor):
 		macro__STRINGS__.__init__(self,"__FILE__",preprocessor)
@@ -77,6 +79,15 @@ class macro__PCVER__(macro__STRINGS__):
 
 	def _GetStringValue(self):
 		return str(_PCVER_HIGH_) + "." + str(_PCVER_LOW0_) + "." + str(_PCVER_LOW1_)
+
+class macro__NOW_TIME__(macro__STRINGS__):
+	def __init__(self, preprocessor):
+		macro__STRINGS__.__init__(self,"__PCVER__",preprocessor)
+
+	def _GetStringValue(self):
+		return datetime.datetime.now().strftime('%I-%M%p-%b-%d')
+
+##############################################################################################################
 
 class macro__PCVER_HIGH__(macro__NUMBER__):
 	def __init__(self, preprocessor):

@@ -16,7 +16,6 @@ def RaiseError(message,variable_message):
 g_trivial_commands = {
 	'endif' : 'ENDIF',
 	'else' : 'ELSE',
-
 }
 
 #syntax: `#command IDENTIFIER`
@@ -270,7 +269,7 @@ def t_CMD_WORD(t):
 	return t
 
 def t_CMD_FUUUUUU(t):
-	r'@'
+	r'\$'
 	t.value = [""]
 	return t
 
@@ -379,7 +378,7 @@ def t_BLOCK_COMMENT(t):
 
 
 def t_CH(t):
-	r'[-`~!@$%^&*+=|;:\\.,?/><]+'
+	r'[-`~!%^&*+=|;:\\.,?/><]+'
 	t.value = [t.value]
 	return t
 
