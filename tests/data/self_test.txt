@@ -177,3 +177,15 @@
 
 #undef INCLUDE_OK
 
+//------------------------------------------------------------
+
+#include "{ENV_TEST}"
+
+#ifndef INCLUDE_OK
+	#error "Failed to include {ENV_TEST}"
+#else
+	#run print('`#include "{ENV_TEST}"` -> Ok')
+#endif
+
+#undef INCLUDE_OK
+

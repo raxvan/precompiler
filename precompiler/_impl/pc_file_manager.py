@@ -113,8 +113,13 @@ class DefaultFileManager(object):
 			return env_value
 		return None
 
+	def _replace_path_re(self,rematch):
+		name = rematch.group('name')
+		return self.FormatPathIdentifier(name);
+
 	def FormatUserPath(self,str_value):
-		result = re.sub(self.environ_regex, lambda a: self.FormatPathIdentifier(a), str_value)
+		print(str_value)
+		result = re.sub(self.environ_regex, lambda a: self._replace_path_re(a), str_value)
 		return os.path.normpath(result)
 
 	def _find_formatting_arguments(matchre):
