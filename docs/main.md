@@ -179,9 +179,8 @@ File search paths
 -----------------
 Any command that takes `__PATH__` as an argument will first process the path by replacing all `{IDENTIFIER}` substrings with content search from (in this order):
 
-1. Upper case of `IDENTIFIER` from environment variables
-2. Lowe case `IDENTIFIER` api defined map in file manager.
-3. Lower case `IDENTIFIER` environment variables.
+1. `IDENTIFIER` in api dictionary in file manager.
+2. `IDENTIFIER` in environment variables.
 
 Example:
 `#include "{PROJECT_DIR}/engine/math.h"` where `PROJECT_DIR` is an enviroment variable with value `/work`, the result will be `#include "/work/engine/math.h"`

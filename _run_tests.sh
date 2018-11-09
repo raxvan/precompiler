@@ -13,5 +13,7 @@ python3 -m unittest -v $THIS/tests/test_lexer.py
 
 echo "============================================================================="
 echo "Running Self Test:"
+ENV_TEST="include_probe.txt"
+export ENV_TEST
 python3 $THIS/tests/test_precompiler.py $THIS/tests/data/self_test.txt
 

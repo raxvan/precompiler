@@ -163,3 +163,17 @@
 	#run print('`value("__LINE__") != "?"` -> Ok')
 #endif
 
+//------------------------------------------------------------
+//------------------------------------------------------------
+//------------------------------------------------------------
+
+#include "include_probe.txt"
+
+#ifndef INCLUDE_OK
+	#error "Failed to include include_probe.txt"
+#else
+	#run print('`#include "include_probe.txt"` -> Ok')
+#endif
+
+#undef INCLUDE_OK
+

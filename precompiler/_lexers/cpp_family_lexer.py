@@ -212,21 +212,25 @@ def t_ID(t):
 	t.value = [t.value]
 	return t
 
-#multiline, eats entire line except `\n`
-def t_CMD_DEF(t):
-	r'\#[ \t]*(?P<name>define|redefine)[ \t]+(?P<defid>[A-Za-z_]\w*)(?:\n|(?P<content>.+?\n))'
-	name = t.lexer.lexmatch.group('name');
-	data = t.lexer.lexmatch.group('content');
+def _internal_define_handler(t,name,def_name,data):
 	if data != None:
 		data = data.strip(' \t\n\r')
 		if data == "":
 			data = None
 	if t.value.endswith("\n"):
 		t.lexer.lineno += 1
-	t.value = [t.value,t.lexer.lexmatch.group('defid'),data]
+	t.value = [t.value,def_name,data]
 	if name == "redefine":
 		t.type = "CMD_REDEF"
 	return t
+
+#multiline, eats entire line except `\n`
+def t_CMD_DEF(t):
+	r'\#[ \t]*(?P<name>define|redefine)[ \t]+(?P<defid>[A-Za-z_]\w*)(?:\n|(?P<content>.+?\n))'
+	name = t.lexer.lexmatch.group('name');
+	def_name = t.lexer.lexmatch.group('defid')
+	data = t.lexer.lexmatch.group('content');
+	return _internal_define_handler(t,name,def_name,data)
 
 #multiline, eats entire line except `\n`
 def t_CMD_ON_LINE_INTERNAL(t):
@@ -331,6 +335,12 @@ def t_CMD_WITH_ID_ARG_INTERNAL(t):
 	r'\#[ \t]*(?P<exp>[a-zA-Z_][-\w]*)[ \t]+(?P<name>[a-zA-Z_]\w*)'
 	exp = t.lexer.lexmatch.group('exp')
 	name = t.lexer.lexmatch.group('name')
+
+	if exp == "define" or exp == "redefine":
+		#this happens when define has no line ending
+		#TODO: handle special case in some other way
+		return _internal_define_handler(t,exp,name,None)
+
 	t.type = g_cmd_with_id_arg.get(exp,None)
 	if t.type != None:
 		t.value = [t.value,name]

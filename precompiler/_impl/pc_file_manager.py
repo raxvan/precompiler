@@ -19,7 +19,7 @@ class DefaultFileManager(object):
 
 		self.unique_stash = {}
 
-		self.environ_regex = re.compile("\{(?P<name>[a-zA-Z_]\w*)\}")
+		self.environ_regex = r"\{(?P<name>[a-zA-Z_]\w*)\}"
 		self.local_environ = {}
 
 		self.time_io_read = 0 #time spent in io load
@@ -104,11 +104,7 @@ class DefaultFileManager(object):
 		return self.lexer_interface.StringTokenize(file,content_str,inherited_token)
 
 	def FormatPathIdentifier(self,name):
-		env_value = os.environ.get(name.upper(),None)
-		if env_value != None:
-			return env_value
-
-		env_value = argument_map.get(name.lower(),None)
+		env_value = self.local_environ.get(name,None)
 		if env_value != None:
 			return env_value
 
@@ -118,7 +114,7 @@ class DefaultFileManager(object):
 		return None
 
 	def FormatUserPath(self,str_value):
-		result = re.sub(self.environ_regex, lambda a: self._replace_match(a), str_value)
+		result = re.sub(self.environ_regex, lambda a: self.FormatPathIdentifier(a), str_value)
 		return os.path.normpath(result)
 
 	def _find_formatting_arguments(matchre):
