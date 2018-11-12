@@ -488,7 +488,7 @@ class _precompiler_backend(object):
 		content = self.file_interface.GetFileTokens(abs_file_path)
 
 		if self.options.get("MakeDependencyTree",False) == True:
-			self.depends.append((self.input_state.GetActiveSourceFile(),abs_file_path,len(content)))
+			self.depends.append((self.input_state.GetActiveSourceFile(),abs_file_path))
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)

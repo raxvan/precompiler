@@ -20,7 +20,7 @@ def createContext(file_interface,options):
 class OutOptions:
 	remove_commentes = 1 << 0 #-> removes all comments
 	colapse_endlines = 1 << 2 #-> colapses multiple endlines into one endline ("\n)
-	colapse_whitespaces = 1 << 3 #-> colapses whitespaces to " " or to "\n"
+	colapse_whitespaces = 1 << 3 #-> colapses whitespaces to " " or to "\n"; this is a superset of `colapse_endlines`
 	try_whitespace_removal = 1 << 4 #-> will try to remove whitespaces when it's possible
 	#track_touched_files = 1 << 5 #-> keeps track of all loaded files for later use
 

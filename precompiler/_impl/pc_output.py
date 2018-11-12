@@ -38,16 +38,18 @@ class CommentRemoval(PreprocessorAssemblerStack):
 		PreprocessorAssemblerStack.__init__(self)
 		self.parent_writer = parent_assembler
 
-
-
 	def Write(self,tok_tuple):
-		tok_type = tok_tuple[0]
+		tok_type = tok_tuple[1]
+
 		if (_pc_utils.isComment(tok_type) == True):
+			_tok_value = tok_tuple[2]
+			value_str = _tok_value[0]
+
 			start = value_str.find("\n")
 			if start != -1:
 				end = value_str.rfind("\n")
-				self.parent_writer.Write(_pc_utils.primitive_tokens.kWhitespace,"\n" * (end - start + 1) + " " * (len(value_str) - end))
+				self.parent_writer.Write( (0, _pc_utils.primitive_tokens.kWhitespace,["\n" * (end - start + 1) + " " * (len(value_str) - end)]) )
 			else:
-				self.parent_writer.Write(_pc_utils.primitive_tokens.kWhitespace," " * len(value_str))
+				self.parent_writer.Write( (0, _pc_utils.primitive_tokens.kWhitespace,[" " * len(value_str)]) )
 		else:
-			self.parent_writer.Write(tok_type,value_str)
+			self.parent_writer.Write(tok_tuple)

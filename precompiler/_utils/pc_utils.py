@@ -232,8 +232,8 @@ class WhitespaceMinimizer(SourceAssemblerStack):
 	def Write(self,tok_tuple):
 
 		#append to whitespace buffer
-		if(tok_tuple[0] == primitive_tokens.kWhitespace):
-			tokvalue = tok_tuple[1]
+		if(tok_tuple[1] == primitive_tokens.kWhitespace):
+			tokvalue = tok_tuple[2][0]
 			self.white_buffer = self.white_buffer + tokvalue;
 			return
 
@@ -248,7 +248,7 @@ class WhitespaceMinimizer(SourceAssemblerStack):
 				if self.white_buffer.find("\n") != -1:
 					self.white_buffer = "\n"
 				else:
-					self.white_buffer = ""
+					self.white_buffer = " "
 			elif self.colapse_endlines == True:
 				end = self.white_buffer.rfind("\n")
 				if end != -1:
@@ -256,7 +256,7 @@ class WhitespaceMinimizer(SourceAssemblerStack):
 						end += 1
 					self.white_buffer = self.white_buffer[end:]
 
-			self.parent_writer.Write(primitive_tokens.kWhitespace,self.white_buffer)
+			self.parent_writer.Write( (0, primitive_tokens.kWhitespace,[self.white_buffer]) )
 			self.white_buffer = ""
 
 		self.last_solid_token = tok_tuple
@@ -268,11 +268,11 @@ class WhitespaceMinimizerDefault(WhitespaceMinimizer):
 		WhitespaceMinimizer.__init__(self,parent_writer)
 
 	def can_remove_whitespaces_between(self,fist_roken,second_token):
-		if(fist_roken[0] == kIdentifier and second_token[0] == kIdentifier):
+		if(fist_roken[1] == primitive_tokens.kIdentifier and second_token[1] == primitive_tokens.kIdentifier):
 			return False
-		if(fist_roken[0] == kNumber and second_token[0] == kNumber):
+		if(fist_roken[1] == primitive_tokens.kNumber and second_token[1] == primitive_tokens.kNumber):
 			return False
-		if(fist_roken[0] == kInlined or second_token[0] == kInlined):
+		if(fist_roken[1] == primitive_tokens.kInlined or second_token[1] == primitive_tokens.kInlined):
 			return False
 
 		return True

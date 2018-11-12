@@ -1,3 +1,6 @@
+
+#Original lexers located in precompiler/precompiler/_lexers
+
 import re
 import ply.lex as lex
 import precompiler._utils.pc_utils as _pc_utils
@@ -6,9 +9,8 @@ g_lexer = None
 g_processed_source_name = None
 
 
-def RaiseError(message,variable_message):
-	global g_current_line
-	return _pc_utils.RaiseErrorAtLocation(g_processed_source_name,g_current_line,message,variable_message);
+def RaiseError(t,message,variable_message):
+	return _pc_utils.RaiseErrorAtLocation(g_processed_source_name,t.lexer.lineno,message,variable_message);
 
 ###########################################################################################################
 #one word without arguments; must be added in CMD_WORD regex
@@ -239,7 +241,7 @@ def t_CMD_ON_LINE_INTERNAL(t):
 	data = t.lexer.lexmatch.group('content');
 	t.type = g_cmd_line_eat.get(name,None)
 	if t.type == None:
-		RaiseError("Invalid precompiler command!",name)
+		RaiseError(t,"Invalid precompiler command!",name)
 
 	if data != None:
 		data = data.strip(' \t\n\r')
@@ -305,7 +307,7 @@ def t_CH_SEPARATOR_INTERNAL(t):
 		t.value = [""]
 		t.type = 'CMD_SEPARATOR_EMPTY'
 	else:
-		RaiseError("Invalid token while searching for separator!",t.value)
+		RaiseError(t,"Invalid token while searching for separator!",t.value)
 	return t
 
 def _internal_EXP_WITH_STRING_ARG(t,string_terminator):
@@ -321,7 +323,7 @@ def _internal_EXP_WITH_STRING_ARG(t,string_terminator):
 		return t
 	t.type = "?"
 
-	RaiseError("Invalid precompiler command!",exp)
+	RaiseError(t,"Invalid precompiler command!",exp)
 
 def t_CMD_WITH_STRING_ARG_LOW_INTERNAL(t):
 	r'\#[ \t]*(?P<exp>[A-Za-z_][-\w]*)[ \t]+\'(?P<str_arg>(?:\\.|[^\'\\])*)\''
@@ -350,7 +352,7 @@ def t_CMD_WITH_ID_ARG_INTERNAL(t):
 		t.value = [t.value,name,_prep_flags.k_identifier_flag]
 		return t
 	t.type = "?"
-	RaiseError("Invalid token while searching for command!",exp)
+	RaiseError(t,"Invalid token while searching for command!",exp)
 
 ###########################################################################################################
 
@@ -410,7 +412,7 @@ def t_TOK_CH_EX_INTERNAL(t):
 
 def t_error(t):
 	end = t.value.find("\n")
-	RaiseError("Unknown syntax!",">" + t.value[:end] + "")
+	RaiseError(t,"Unknown syntax!",">" + t.value[:end] + "")
 
 def t_eof(t):
 	return None
@@ -424,7 +426,6 @@ def StringTokenize(source_identifier,content, parent_token ):
 		return []
 
 	global g_processed_source_name
-	global g_current_line
 	global _prep_map
 
 	g_processed_source_name = source_identifier
@@ -432,7 +433,6 @@ def StringTokenize(source_identifier,content, parent_token ):
 
 	result = []
 
-	g_current_line = 0
 	g_lexer.lineno = 0
 
 	while True:

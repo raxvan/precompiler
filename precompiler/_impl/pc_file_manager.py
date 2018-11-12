@@ -37,7 +37,6 @@ class DefaultFileManager(object):
 		if (flags == None):
 			flags = 0
 
-
 		file_writer = self.CreateFileOutputHandler(abs_file_path)
 
 		if (flags & (precompiler.OutOptions.colapse_endlines | precompiler.OutOptions.colapse_whitespaces | precompiler.OutOptions.try_whitespace_removal)) != 0:
