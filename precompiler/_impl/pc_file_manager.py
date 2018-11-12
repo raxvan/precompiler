@@ -2,11 +2,33 @@
 import os
 import re
 import time
+import hashlib
 
 import precompiler
 import precompiler._impl.pc_output as _impl_pc_output
 import precompiler._utils.pc_utils as _pc_utils
 import precompiler._utils.pc_file_utils as _pc_file_utils
+
+
+class FileDataAdapter(object):
+	def __init__(self,_name):
+		self.name = _name
+		self.content_sha512_str = None
+		self.str_content = None
+		self.tok_content = None
+		self.tok_stash = None
+
+	def stash(self):
+		if self.tok_stash == None:
+			self.tok_stash = self.tok_content
+			self.tok_content = []
+
+	def apply_stash(self):
+		if self.tok_stash != None:
+			self.tok_content = self.tok_stash
+			self.tok_stash = None
+
+
 
 ###########################################################################################################
 
@@ -14,10 +36,8 @@ class DefaultFileManager(object):
 	def __init__(self,lexer_interface):
 		self.search_paths = []
 
-		self.file_str_cache = {}
-		self.file_tok_cache = {}
-
-		self.unique_stash = {}
+		self.database = {}
+		
 
 		self.environ_regex = r"\{(?P<name>[a-zA-Z_]\w*)\}"
 		self.local_environ = {}
@@ -64,39 +84,42 @@ class DefaultFileManager(object):
 
 		return _pc_utils.BufferedFileAssembler(h,abs_file_path,128)
 
-	def GetFileStr(self,abs_file_path):
+	def GetOrLoadFile(self,abs_file_path):
+		fh = self.database.get(abs_file_path,None)
+		if fh != None:
+			return fh
 
-		cached_str = self.file_str_cache.get(abs_file_path,None)
-		if cached_str != None:
-			return cached_str
+		handle = FileDataAdapter(abs_file_path)
 
+		handle.str_content = self._load_file_str(abs_file_path)
+		handle.content_sha512_str = hashlib.sha512(handle.str_content.encode()).hexdigest() 
+		handle.tok_content = self._load_tok_from_str(abs_file_path,handle.str_content)
+
+		return handle
+
+	def _load_file_str(self,abs_file_path):
 		start_time = time.time()
 		tf = _pc_file_utils.open_and_read_textfile(abs_file_path)
 		if tf == None:
 			tf = self.onFailedToLoadFile(abs_file_path)
 		end_time = time.time()
-		self.file_str_cache[abs_file_path] = tf
+		
 		self.time_io_read += (end_time - start_time)
 
 		return tf
 
-	def GetFileTokens(self,abs_file_path):
-
-		cache_content = self.file_tok_cache.get(abs_file_path,None)
-
-		if cache_content != None:
-			return cache_content
-
-		file_str = self.GetFileStr(abs_file_path)
-
+	def _load_tok_from_str(self,abs_file_path,str_content):
 		start_time = time.time()
-		tokens = self.lexer_interface.StringTokenize(abs_file_path,file_str,None)
+		tokens = self.lexer_interface.StringTokenize(abs_file_path,str_content,None)
 		end_time = time.time()
 
-		self.file_tok_cache[abs_file_path] = tokens
 		self.time_lexer += (end_time - start_time)
 
 		return tokens
+
+	def GetFileTokens(self,abs_file_path):
+		file_handle = self.GetOrLoadFile(abs_file_path)
+		return file_handle.tok_content
 
 	def RetokenizeContent(self,content_str, inherited_token):
 		file = _pc_utils.TokSource(inherited_token)[0]
@@ -148,22 +171,18 @@ class DefaultFileManager(object):
 		return self.LocateFile(formated_path,current_root)
 
 	def StashFileContent(self,abs_file_path):
-		if self.unique_stash.get(abs_file_path,None) != None:
-			return
-		#save file content for later use
-		self.unique_stash[abs_file_path] = self.file_tok_cache[abs_file_path]
-		#make content "empty"
-		self.file_tok_cache[abs_file_path] = []
-
+		fh = self.database.get(abs_file_path,None)
+		assert fh != None, "Internal Error; The file stash should already have the file loaded"
+		fh.stash()
+		
 	def RevertStash(self,abs_file_path):
-		stash = self.unique_stash.get(abs_file_path,None)
-		if stash != None:
-			self.file_tok_cache[abs_file_path] = stash
-			self.unique_stash[abs_file_path] = None
+		fh = self.database.get(abs_file_path,None)
+		assert fh != None, "Internal Error; The file stash should already have the file loaded"
+		fh.apply_stash()
 
 	def ResetFileSystem(self):
-		self.file_tok_cache.update(self.unique_stash)
-		self.unique_stash = {}
+		for k,v in self.database.items():
+			v.apply_stash()
 
 	def onFailedToLoadFile(self,abs_file_path):
 		raise Exception("Failed to load file [" + abs_file_path + "]!")

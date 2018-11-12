@@ -48,7 +48,8 @@ class CommentRemoval(PreprocessorAssemblerStack):
 			start = value_str.find("\n")
 			if start != -1:
 				end = value_str.rfind("\n")
-				self.parent_writer.Write( (0, _pc_utils.primitive_tokens.kWhitespace,["\n" * (end - start + 1) + " " * (len(value_str) - end)]) )
+				count = value_str.count("\n")
+				self.parent_writer.Write( (0, _pc_utils.primitive_tokens.kWhitespace,["\n" * count + " " * (len(value_str) - end)]) )
 			else:
 				self.parent_writer.Write( (0, _pc_utils.primitive_tokens.kWhitespace,[" " * len(value_str)]) )
 		else:

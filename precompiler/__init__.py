@@ -24,9 +24,6 @@ class OutOptions:
 	try_whitespace_removal = 1 << 4 #-> will try to remove whitespaces when it's possible
 	#track_touched_files = 1 << 5 #-> keeps track of all loaded files for later use
 
-	k_tracing_set = "set"
-	k_tracing_tree = "tree"
-
 
 def Features():
 	return {

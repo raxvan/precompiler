@@ -7,6 +7,10 @@ export PYTHONPATH
 LEXER_TEST_FILE=$THIS/tests/data/cpp_lexer_test.txt
 export LEXER_TEST_FILE
 
+API_TEST_FOLDER=$THIS/tests/data/
+export API_TEST_FOLDER
+
+
 echo "============================================================================="
 echo "Testing Lexer:"
 python3 -m unittest -v $THIS/tests/test_lexer.py
@@ -17,3 +21,6 @@ ENV_TEST="include_probe.txt"
 export ENV_TEST
 python3 $THIS/tests/test_precompiler.py $THIS/tests/data/self_test.txt
 
+echo "============================================================================="
+echo "Testing Api:"
+python3 -m unittest -v $THIS/tests/test_api.py
