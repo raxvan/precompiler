@@ -4,6 +4,7 @@ import precompiler._impl.pc_define as _impl_pc_define
 import precompiler._utils.pc_utils as _pc_utils
 import os
 
+
 _PCVER_HIGH_ = 0
 _PCVER_LOW0_ = 1
 _PCVER_LOW1_ = 0
@@ -85,7 +86,7 @@ class macro__NOW_TIME__(macro__STRINGS__):
 		macro__STRINGS__.__init__(self,"__PCVER__",preprocessor)
 
 	def _GetStringValue(self):
-		return datetime.datetime.now().strftime('%I-%M%p-%b-%d')
+		return _pc_utils.GetNowTimeString()
 
 ##############################################################################################################
 

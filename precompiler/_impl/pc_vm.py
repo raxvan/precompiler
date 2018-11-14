@@ -8,6 +8,7 @@ import precompiler._utils.pc_utils as _pc_utils
 
 
 import timeit
+import datetime
 
 _token_flags = _pc_utils.token_flags
 _primitive_toks = _pc_utils.primitive_tokens
@@ -132,6 +133,15 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 	def Finish(self):
 		self.assembler.Close()
 
+
+	def _create_file_info(self,tok):
+		_fi = self.precompiler.file_interface
+		l0 = _fi.CreateOutputComment("-- Preprocessed file, do not modify!")
+		l1 = _fi.CreateOutputComment("------------------------------------")
+		l2 = _fi.CreateOutputComment("-- Time: " + _pc_utils.GetNowTimeString())
+		l3 = _fi.CreateOutputComment("-- Src: " + self.precompiler.input_state.GetActiveSourceFile())
+		return "\n".join([l0,l1,l2,l3]);
+
 	def _evaluate_source_id(self,tok,_id):
 		if _id == 'once':
 			source_file = self.precompiler.input_state.GetActiveSourceFile()
@@ -141,6 +151,9 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			self.precompiler.file_interface.StashFileContent(source_file)
 		elif _id == 'break':
 			self.precompiler._break_file_unit();
+		elif _id == 'info':
+			file_info = self._create_file_info();
+			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_info],_pc_utils.TokSource(tok)))
 		else:
 			self.precompiler.RaiseErrorOnToken(tok,"Unknown #source token!","Value `" + _id + "`")
 
@@ -339,6 +352,9 @@ class _precompiler_backend(object):
 		self._default_macros = None
 
 
+		self._dependency_list = []
+
+
 	def push_execution_state(self,is_condition_true):
 		self.condition_stack.append(is_condition_true)
 		self.active_condition = None
@@ -485,10 +501,11 @@ class _precompiler_backend(object):
 
 		abs_file_path = self.evaluate_file_path(strval,tok)
 
-		content = self.file_interface.GetFileTokens(abs_file_path)
+		depdendency_handle = self.file_interface.GetOrLoadFile(abs_file_path)
+		content = depdendency_handle.tokens()
 
 		if self.options.get("MakeDependencyTree",False) == True:
-			self.depends.append((self.input_state.GetActiveSourceFile(),abs_file_path))
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,content.hash()))
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)

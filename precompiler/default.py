@@ -20,43 +20,51 @@ class context(_impl_pc_vm._precompiler_backend):
 		self.eval_user_context = user_ctx
 		self._invalidate_eval_ctx()
 
-	#reset preprocessor to zero
-	def Reset(self):
-		self.run_iterations = 0
-		self.run_time = 0
+	#reset preprocessor to initial state. This is required if you don't want to rebuild the context for multiple Runs
+	def Reset(self,reset_stats):
+		if reset_stats:
+			self.run_iterations = 0
+			self.run_time = 0
+
+		self._dependency_list = []
 
 		#reset file interface
-		self.file_interface.ResetFileSystem()
+		self.file_interface.ResetFileSystem(reset_stats)
 
 		#rebuild internal structure
 		self.input_state = _impl_pc_iterator.ParsingContextStack()
 
 		self._invalidate_eval_ctx()
 
-	#reset parsing and
+
 	def AddInputFile(self,abs_file_path):
 		self.init_default_macros()
 		file_token_iterator = _impl_pc_iterator.FileTokenInterator(self.file_interface.GetFileTokens(abs_file_path),abs_file_path,[])
 		self.input_state.PushState(file_token_iterator,None)
 
+	#flags are defined in __init__.py
 	def SetOutputFile(self,abs_file_path, flags):
 		output_handle = self.file_interface.CreateAssembler(abs_file_path,flags);
 		self.parser_state = _impl_pc_vm._pc_root_parser(self,output_handle)
 
+	#when you want to run the precompiler on a file without outputting anything.
 	def SetOutputToBlank(self):
 		output_handle = _pc_utils.EmptyAssembler()
 		self.parser_state = _impl_pc_vm._pc_root_parser(self,output_handle)
 
+	#define with value
 	def AddUserDefineValue(self,define_name,string_value):
 		tokens = _pc_utils.precompiler_tokens
 		tok_def = (_pc_utils.precompiler_tokens.k_define, 0, (define_name,None,string_value), ["user", -1] )
 		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,string_value,None,tok_def,self))
 
+	#without value
 	def AddUserDefine(self,define_name):
 		tokens = _pc_utils.precompiler_tokens
 		tok_def = (_pc_utils.precompiler_tokens.k_define, 0, (define_name,None,""), ["user", -1] )
 		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,[],None,tok_def,self))
 
+	#returns a bunch if debug info
 	def GetStats(self):
 		return {
 			"io" : self.file_interface.GetStats(),
@@ -64,6 +72,7 @@ class context(_impl_pc_vm._precompiler_backend):
 			"iterations" : self.run_iterations,
 		}
 
+	#returns a list of dependencyes; each dependency is a tuple (source,dependency_abs_path,dependency_content_hash)
 	def Run(self):
 		_start_time = time.time()
 
@@ -85,6 +94,8 @@ class context(_impl_pc_vm._precompiler_backend):
 		_end_time = time.time()
 		self.run_time += (_end_time - _start_time)
 		self.run_iterations += _itr
+
+		return self._dependency_list
 
 
 ##########################################################################################################

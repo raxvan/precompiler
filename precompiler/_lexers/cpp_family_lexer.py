@@ -12,6 +12,9 @@ g_processed_source_name = None
 def RaiseError(t,message,variable_message):
 	return _pc_utils.RaiseErrorAtLocation(g_processed_source_name,t.lexer.lineno,message,variable_message);
 
+def CreateLineCommentFromText(text_message):
+	return "//" + text_message
+
 ###########################################################################################################
 #one word without arguments; must be added in CMD_WORD regex
 #syntax: `#command`

@@ -28,6 +28,11 @@ class FileDataAdapter(object):
 			self.tok_content = self.tok_stash
 			self.tok_stash = None
 
+	def tokens(self):
+		return self.tok_content
+
+	def hash(self):
+		return self.content_sha512_str
 
 
 ###########################################################################################################
@@ -91,22 +96,25 @@ class DefaultFileManager(object):
 
 		handle = FileDataAdapter(abs_file_path)
 
-		handle.str_content = self._load_file_str(abs_file_path)
-		handle.content_sha512_str = hashlib.sha512(handle.str_content.encode()).hexdigest() 
+		(handle.str_content,handle.content_sha512_str) = self._load_file_str(abs_file_path)
 		handle.tok_content = self._load_tok_from_str(abs_file_path,handle.str_content)
 
 		return handle
 
+	def CreateOutputComment(self,message):
+		return self.lexer_interface.CreateLineCommentFromText(message)
+
 	def _load_file_str(self,abs_file_path):
 		start_time = time.time()
-		tf = _pc_file_utils.open_and_read_textfile(abs_file_path)
-		if tf == None:
-			tf = self.onFailedToLoadFile(abs_file_path)
+		file_content = _pc_file_utils.open_and_read_texfile_contentile(abs_file_path)
+		if file_content == None:
+			file_content = self.onFailedToLoadFile(abs_file_path)
+		content_hash = hashlib.sha512(file_content.encode()).hexdigest() 
 		end_time = time.time()
-		
+
 		self.time_io_read += (end_time - start_time)
 
-		return tf
+		return (file_content,content_hash)
 
 	def _load_tok_from_str(self,abs_file_path,str_content):
 		start_time = time.time()
@@ -140,7 +148,6 @@ class DefaultFileManager(object):
 		return self.FormatPathIdentifier(name);
 
 	def FormatUserPath(self,str_value):
-		print(str_value)
 		result = re.sub(self.environ_regex, lambda a: self._replace_path_re(a), str_value)
 		return os.path.normpath(result)
 
@@ -180,9 +187,12 @@ class DefaultFileManager(object):
 		assert fh != None, "Internal Error; The file stash should already have the file loaded"
 		fh.apply_stash()
 
-	def ResetFileSystem(self):
+	def ResetFileSystem(self,reset_stats):
 		for k,v in self.database.items():
 			v.apply_stash()
+		if reset_stats:
+			self.time_io_read = 0
+			self.time_lexer = 0
 
 	def onFailedToLoadFile(self,abs_file_path):
 		raise Exception("Failed to load file [" + abs_file_path + "]!")

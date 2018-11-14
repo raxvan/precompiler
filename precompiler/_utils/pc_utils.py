@@ -1,4 +1,5 @@
 import re
+import datetime
 
 _identifier_regex = re.compile("[A-Za-z_]\w*")
 
@@ -151,6 +152,9 @@ def isComment(toktype):
 	if(toktype == primitive_tokens.kComment):
 		return True
 	return False
+
+def GetNowTimeString():
+	return datetime.datetime.now().strftime('%I-%M %p-%b-%d')
 
 ###########################################################################################################
 ###########################################################################################################

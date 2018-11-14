@@ -69,6 +69,7 @@ Possible values for `__ID__` where identifier can be:
 1. `break` will stop precompiling the rest of the tokens of the exsiting file.
 2. `once` will skip all includes of this file if the files was already included or inlined
 3. `dup` will enable inclusion of this file multiple times (to bypass `SourceOnceByDefault` option)
+4. `info` will output a comment containing information about the source file
 
 
 ### error
