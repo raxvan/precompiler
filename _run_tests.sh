@@ -13,7 +13,8 @@ export API_TEST_FOLDER
 
 echo "============================================================================="
 echo "Testing Lexer:"
-python3 -m unittest -v $THIS/tests/test_lexer.py
+cd $THIS/tests/
+python3 -m unittest -v test_lexer.py
 
 echo "============================================================================="
 echo "Running Self Test:"
@@ -23,4 +24,5 @@ python3 $THIS/tests/test_precompiler.py $THIS/tests/data/self_test.txt
 
 echo "============================================================================="
 echo "Testing Api:"
-python3 -m unittest -v $THIS/tests/test_api.py
+cd $THIS/tests/
+python3 -m unittest -v test_api.py

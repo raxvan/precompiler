@@ -106,7 +106,7 @@ class DefaultFileManager(object):
 
 	def _load_file_str(self,abs_file_path):
 		start_time = time.time()
-		file_content = _pc_file_utils.open_and_read_texfile_contentile(abs_file_path)
+		file_content = _pc_file_utils.open_and_read_textfile(abs_file_path)
 		if file_content == None:
 			file_content = self.onFailedToLoadFile(abs_file_path)
 		content_hash = hashlib.sha512(file_content.encode()).hexdigest() 
