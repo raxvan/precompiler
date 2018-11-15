@@ -13,7 +13,7 @@ class context(_impl_pc_vm._precompiler_backend):
 		self.run_iterations = 0
 		self.run_time = 0
 
-		self.Reset()
+		self.Reset(False)
 
 	#adds user functions to `eval` context
 	def ResetEvalContext(self,user_ctx):
