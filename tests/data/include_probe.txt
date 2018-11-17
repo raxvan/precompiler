@@ -1,2 +1,6 @@
 
 #define INCLUDE_OK
+
+#ifdef USE_SOURCE_ONCE
+	#source once
+#endif

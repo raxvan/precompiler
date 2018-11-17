@@ -99,6 +99,8 @@ class DefaultFileManager(object):
 		(handle.str_content,handle.content_sha512_str) = self._load_file_str(abs_file_path)
 		handle.tok_content = self._load_tok_from_str(abs_file_path,handle.str_content)
 
+		self.database[abs_file_path] = handle
+
 		return handle
 
 	def CreateOutputComment(self,message):

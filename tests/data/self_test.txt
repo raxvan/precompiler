@@ -1,4 +1,4 @@
-
+#source info
 //------------------------------------------------------------
 #define _
 #if value("_") != "":
@@ -189,3 +189,27 @@
 
 #undef INCLUDE_OK
 
+//------------------------------------------------------------
+
+#define INCLUDE_FILE include_probe.txt
+#include INCLUDE_FILE
+
+#ifndef INCLUDE_OK
+	#error "Failed to include {ENV_TEST}"
+#else
+	#run print('`#include INCLUDE_FILE"` -> Ok')
+#endif
+#undef INCLUDE_OK
+
+//------------------------------------------------------------
+
+#define USE_SOURCE_ONCE
+#include INCLUDE_FILE
+#undef INCLUDE_OK
+#include INCLUDE_FILE
+
+#ifdef INCLUDE_OK
+	#error "Failed to include {ENV_TEST}"
+#else
+	#run print('`#source once` -> Ok')
+#endif

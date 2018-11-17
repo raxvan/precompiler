@@ -136,11 +136,18 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 
 	def _create_file_info(self,tok):
 		_fi = self.precompiler.file_interface
-		l0 = _fi.CreateOutputComment("-- Preprocessed file, do not modify!")
-		l1 = _fi.CreateOutputComment("------------------------------------")
-		l2 = _fi.CreateOutputComment("-- Time: " + _pc_utils.GetNowTimeString())
-		l3 = _fi.CreateOutputComment("-- Src: " + self.precompiler.input_state.GetActiveSourceFile())
-		return "\n".join([l0,l1,l2,l3]);
+		active_file_path = self.precompiler.input_state.GetActiveSourceFile()
+		file_handle = _fi.GetOrLoadFile(active_file_path)
+		lines = [
+			"--------------------------------------------------------------------------------------------------------------------------------------------",
+			"-- ! Preprocessed file, CHANGES WILL BE DISCARDED ! ----------------------------------------------------------------------------------------",
+			"--------------------------------------------------------------------------------------------------------------------------------------------",
+			"-- Time: " + _pc_utils.GetNowTimeString(),
+			"-- Src path: " + active_file_path,
+			"-- Src sha: " + file_handle.hash(),
+			"--------------------------------------------------------------------------------------------------------------------------------------------",
+		]
+		return "\n".join([_fi.CreateOutputComment(l) for l in lines]);
 
 	def _evaluate_source_id(self,tok,_id):
 		if _id == 'once':
@@ -152,7 +159,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		elif _id == 'break':
 			self.precompiler._break_file_unit();
 		elif _id == 'info':
-			file_info = self._create_file_info();
+			file_info = self._create_file_info(tok);
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_info],_pc_utils.TokSource(tok)))
 		else:
 			self.precompiler.RaiseErrorOnToken(tok,"Unknown #source token!","Value `" + _id + "`")
@@ -283,7 +290,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 				(_,name_or_str,type_of_argument) = _tok_value
 
 				if type_of_argument == _token_flags.k_identifier_flag:
-					string_value = _prep.get_required_define(tok,name_or_str).GetValueAsString()
+					string_value = _prep.get_required_define(tok,name_or_str).GetValueAsString(tok)
 					return self._evaluate_functions_with_string_arg(tok,toktype,string_value)
 
 				elif type_of_argument == _token_flags.k_string_flag:
@@ -486,7 +493,7 @@ class _precompiler_backend(object):
 		current_compilation_unit = self.input_state.GetActiveSourceFile()
 		abs_path = self.file_interface.FindFileWithPath(strval,current_compilation_unit)
 		if abs_path == None:
-			self.RaiseErrorOnToken(tok,"Could not locate file!","Path: `" + formated_path + "`")
+			self.RaiseErrorOnToken(tok,"Could not locate file!","Path: `" + strval + "`")
 		return abs_path
 
 	def open_file_and_get_str(self,strval,tok):
