@@ -7,6 +7,9 @@ import time
 
 #all functions exposed to the user
 class context(_impl_pc_vm._precompiler_backend):
+
+	#`options` are defined in __init__.py as `Features` function
+	#`file_handler` should be result of createFileInterface() or implementation inherited from `DefaultFileManager`
 	def __init__(self,file_handler,options):
 		_impl_pc_vm._precompiler_backend.__init__(self,file_handler, options)
 
@@ -26,7 +29,8 @@ class context(_impl_pc_vm._precompiler_backend):
 			self.run_iterations = 0
 			self.run_time = 0
 
-		self._dependency_list = []
+		if self._dependency_list != None:
+			self._dependency_list = []
 
 		#reset file interface
 		self.file_interface.ResetFileSystem(reset_stats)
@@ -36,11 +40,13 @@ class context(_impl_pc_vm._precompiler_backend):
 
 		self._invalidate_eval_ctx()
 
-
+	#returns the file handler
 	def AddInputFile(self,abs_file_path):
 		self.init_default_macros()
-		file_token_iterator = _impl_pc_iterator.FileTokenInterator(self.file_interface.GetFileTokens(abs_file_path),abs_file_path,[])
+		file_handle = self.file_interface.GetOrLoadFile(abs_file_path)
+		file_token_iterator = _impl_pc_iterator.FileTokenInterator(file_handle.tokens(),abs_file_path,[])
 		self.input_state.PushState(file_token_iterator,None)
+		return file_handle
 
 	#flags are defined in __init__.py
 	def SetOutputFile(self,abs_file_path, flags):

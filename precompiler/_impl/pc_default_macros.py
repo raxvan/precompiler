@@ -7,7 +7,7 @@ import os
 
 _PCVER_HIGH_ = 0
 _PCVER_LOW0_ = 1
-_PCVER_LOW1_ = 0
+_PCVER_LOW1_ = 1
 
 ##############################################################################################################
 class _builtin_macro(_impl_pc_define.MacroBase):

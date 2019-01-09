@@ -144,8 +144,8 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			"--------------------------------------------------------------------------------------------------------------------------------------------",
 			"-- Time: " + _pc_utils.GetNowTimeString(),
 			"-- Src path: " + active_file_path,
-			"-- Src sha: " + file_handle.hash(),
-			"--------------------------------------------------------------------------------------------------------------------------------------------",
+			"-- Preprocessor version:" + str(_pc_macros._PCVER_HIGH_) + "." + str(_pc_macros._PCVER_LOW0_) + "." + str(_pc_macros._PCVER_LOW1_),
+			"--------------------------------------------------------------------------------------------------------------------------------------------"
 		]
 		return "\n".join([_fi.CreateOutputComment(l) for l in lines]);
 
@@ -358,8 +358,9 @@ class _precompiler_backend(object):
 
 		self._default_macros = None
 
-
-		self._dependency_list = []
+		self._dependency_list = None
+		if self.options.get("MakeDependencyTree",False) == True:
+			self._dependency_list = []
 
 
 	def push_execution_state(self,is_condition_true):
@@ -511,8 +512,8 @@ class _precompiler_backend(object):
 		depdendency_handle = self.file_interface.GetOrLoadFile(abs_file_path)
 		content = depdendency_handle.tokens()
 
-		if self.options.get("MakeDependencyTree",False) == True:
-			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,content.hash()))
+		if self._dependency_list != None:
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,depdendency_handle.hash()))
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)

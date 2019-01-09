@@ -34,6 +34,11 @@ class FileDataAdapter(object):
 	def hash(self):
 		return self.content_sha512_str
 
+	def hash_qeuals(self,input_hash):
+		if self.content_sha512_str == input_hash:
+			return True
+		return False
+
 
 ###########################################################################################################
 

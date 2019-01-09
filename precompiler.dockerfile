@@ -9,7 +9,6 @@ RUN apt-get update && apt-get install -y \
 	python3-dev \
 	build-essential
 
-
 RUN pip3 install --upgrade pip && pip install \
 	ply
 

@@ -27,7 +27,7 @@ class OutOptions:
 
 def Features():
 	return {
-		"MakeDependencyTree" : False,
+		"MakeDependencyTree" : False, #returns a list with tuples; values from tuple (A,B) indicate that file path A has file path B as a dependency
 		"SourceOnceByDefault" : False,
 		"EvalContext" : None
 	}

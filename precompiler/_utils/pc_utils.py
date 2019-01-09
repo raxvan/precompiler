@@ -154,7 +154,7 @@ def isComment(toktype):
 	return False
 
 def GetNowTimeString():
-	return datetime.datetime.now().strftime('%I-%M %p-%b-%d')
+	return datetime.datetime.now().strftime('%H:%M %b/%d/%Y')
 
 ###########################################################################################################
 ###########################################################################################################
