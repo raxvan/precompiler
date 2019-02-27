@@ -213,3 +213,23 @@
 #else
 	#run print('`#source once` -> Ok')
 #endif
+
+//------------------------------------------------------------
+//https://github.com/raxvan/precompiler/issues/4
+#include "include_probe2.txt"
+
+#ifndef INCLUDE2_OK
+	#error "Failed include_probe2.txt"
+#else
+	#run print('`Include include_probe2.txt` -> Ok')
+#endif
+
+#include "include_probe3.txt"
+
+#ifndef INCLUDE3_OK
+	#error "Failed include_probe3.txt"
+#else
+	#run print('`Include include_probe3.txt` -> Ok')
+#endif
+
+//------------------------------------------------------------

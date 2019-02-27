@@ -2,12 +2,8 @@
 
 import precompiler._impl.pc_define as _impl_pc_define
 import precompiler._utils.pc_utils as _pc_utils
+import precompiler._version.pc_version as _impl_pc_ver
 import os
-
-
-_PCVER_HIGH_ = 0
-_PCVER_LOW0_ = 1
-_PCVER_LOW1_ = 1
 
 ##############################################################################################################
 class _builtin_macro(_impl_pc_define.MacroBase):
@@ -79,7 +75,7 @@ class macro__PCVER__(macro__STRINGS__):
 		macro__STRINGS__.__init__(self,"__PCVER__",preprocessor)
 
 	def _GetStringValue(self):
-		return str(_PCVER_HIGH_) + "." + str(_PCVER_LOW0_) + "." + str(_PCVER_LOW1_)
+		return str(_impl_pc_ver._PCVER_HIGH_) + "." + str(_impl_pc_ver._PCVER_LOW0_) + "." + str(_impl_pc_ver._PCVER_LOW1_)
 
 class macro__NOW_TIME__(macro__STRINGS__):
 	def __init__(self, preprocessor):
@@ -95,14 +91,14 @@ class macro__PCVER_HIGH__(macro__NUMBER__):
 		macro__NUMBER__.__init__(self,"__PCVER_HIGH__",preprocessor)
 
 	def _GetNumberValue(self,_):
-		return _PCVER_HIGH_
+		return _impl_pc_ver._PCVER_HIGH_
 
 class macro__PCVER_LOW__(macro__NUMBER__):
 	def __init__(self, preprocessor):
 		macro__NUMBER__.__init__(self,"__PCVER_LOW__",preprocessor)
 
 	def _GetNumberValue(self,_):
-		return _PCVER_LOW0_ + _PCVER_LOW1_ / 10.0;
+		return _impl_pc_ver._PCVER_LOW0_ + _impl_pc_ver._PCVER_LOW1_ / 10.0;
 
 class macro__LINE__(macro__NUMBER__):
 	def __init__(self, preprocessor):

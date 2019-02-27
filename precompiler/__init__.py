@@ -1,6 +1,7 @@
 __all__ = ["createLexer","createFileInterface","createContext","OutOptions","Features"]
 
 
+
 def createLexer():
 	import precompiler._lexers.cpp_family_lexer
 	return precompiler._lexers.cpp_family_lexer
@@ -16,6 +17,9 @@ def createContext(file_interface,options):
 	result = precompiler.default.context(file_interface,options)
 	return result
 
+def version():
+	import precompiler._version.pc_version
+	return (precompiler._version.pc_version._PCVER_HIGH_, precompiler._version.pc_version._PCVER_LOW0_, precompiler._version.pc_version._PCVER_LOW1_)
 
 class OutOptions:
 	remove_commentes = 1 << 0 #-> removes all comments

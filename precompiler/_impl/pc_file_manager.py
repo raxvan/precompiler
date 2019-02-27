@@ -11,16 +11,17 @@ import precompiler._utils.pc_file_utils as _pc_file_utils
 
 
 class FileDataAdapter(object):
-	def __init__(self,_name):
+	def __init__(self,_name,_file_interface):
 		self.name = _name
 		self.content_sha512_str = None
 		self.str_content = None
 		self.tok_content = None
 		self.tok_stash = None
+		self.parent = _file_interface;
 
 	def stash(self):
 		if self.tok_stash == None:
-			self.tok_stash = self.tok_content
+			self.tok_stash = self.tokens()
 			self.tok_content = []
 
 	def apply_stash(self):
@@ -29,6 +30,8 @@ class FileDataAdapter(object):
 			self.tok_stash = None
 
 	def tokens(self):
+		if self.tok_content == None:
+			self.tok_content = self.parent._load_tok_from_str(self.name,self.str_content)
 		return self.tok_content
 
 	def hash(self):
@@ -99,10 +102,12 @@ class DefaultFileManager(object):
 		if fh != None:
 			return fh
 
-		handle = FileDataAdapter(abs_file_path)
+		handle = FileDataAdapter(abs_file_path,self)
 
 		(handle.str_content,handle.content_sha512_str) = self._load_file_str(abs_file_path)
-		handle.tok_content = self._load_tok_from_str(abs_file_path,handle.str_content)
+		# https://github.com/raxvan/precompiler/issues/3
+		# tokens are loaded later;
+		# This allows for loading all files fast without running the lexer
 
 		self.database[abs_file_path] = handle
 
@@ -121,7 +126,9 @@ class DefaultFileManager(object):
 
 		self.time_io_read += (end_time - start_time)
 
-		return (file_content,content_hash)
+		# content + '\n' to fix issue https://github.com/raxvan/precompiler/issues/4
+		# ^ i have no alternative because i'm no regex expert to fix lexer.
+		return (file_content + "\n",content_hash)
 
 	def _load_tok_from_str(self,abs_file_path,str_content):
 		start_time = time.time()
@@ -134,7 +141,7 @@ class DefaultFileManager(object):
 
 	def GetFileTokens(self,abs_file_path):
 		file_handle = self.GetOrLoadFile(abs_file_path)
-		return file_handle.tok_content
+		return file_handle.tokens();
 
 	def RetokenizeContent(self,content_str, inherited_token):
 		file = _pc_utils.TokSource(inherited_token)[0]

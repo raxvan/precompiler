@@ -25,6 +25,7 @@ Syntax:
 3. `_ARGUMENTS` is optional along with the separator `$` separator. If multiple separators `$` are present the first one is selected.
 4. `_VALUE` can be anything
 
+Note that if `_ARGUMENTS` are missing (given by `$` separator) then the define value is given by all tokens after the `__ID__` token.
 
 ### undefine
 Removes the variable from preprocessor. Throws error if variable does not exist.

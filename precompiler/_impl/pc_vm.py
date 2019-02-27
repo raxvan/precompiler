@@ -4,6 +4,7 @@ import precompiler._impl.pc_define as _impl_pc_define
 import precompiler._impl.pc_iterator as _impl_pc_iterator
 import precompiler._impl.pc_output as _impl_pc_output
 import precompiler._impl.pc_default_macros as _pc_macros
+import precompiler._version.pc_version as _pc_ver
 import precompiler._utils.pc_utils as _pc_utils
 
 
@@ -142,9 +143,9 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			"--------------------------------------------------------------------------------------------------------------------------------------------",
 			"-- ! Preprocessed file, CHANGES WILL BE DISCARDED ! ----------------------------------------------------------------------------------------",
 			"--------------------------------------------------------------------------------------------------------------------------------------------",
-			"-- Time: " + _pc_utils.GetNowTimeString(),
-			"-- Src path: " + active_file_path,
-			"-- Preprocessor version:" + str(_pc_macros._PCVER_HIGH_) + "." + str(_pc_macros._PCVER_LOW0_) + "." + str(_pc_macros._PCVER_LOW1_),
+			"-- time: " + _pc_utils.GetNowTimeString(),
+			"-- src path: " + active_file_path,
+			"-- preprocessor version:" + str(_pc_ver._PCVER_HIGH_) + "." + str(_pc_ver._PCVER_LOW0_) + "." + str(_pc_ver._PCVER_LOW1_),
 			"--------------------------------------------------------------------------------------------------------------------------------------------"
 		]
 		return "\n".join([_fi.CreateOutputComment(l) for l in lines]);

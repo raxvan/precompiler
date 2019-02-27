@@ -80,13 +80,8 @@ class SourceCodeError(Exception):
 def FormatFileLocation(abs_source_file,line):
 	return abs_source_file + "(" + str(line + 1) + ")"
 
-def FormatErrorMessage(message,variable_message):
-	if variable_message != None:
-		return message + "\n" + variable_message
-	return message
-
 def RaiseErrorAtLocation(source_file,line,message,variable_message):
-	raise SourceCodeError(None,"Error At:\n" + FormatFileLocation(source_file,line) + ":\n" + FormatErrorMessage(message,variable_message))
+	raise SourceCodeError(None,message + "\nAt:\n" + FormatFileLocation(source_file,line) + ":\n" + variable_message)
 
 def RaiseErrorAtToken(tok,message,variable_message):
 	(tok_flags,_,tok_value,source_loc) = tok
@@ -96,7 +91,7 @@ def RaiseErrorAtToken(tok,message,variable_message):
 		#print(tok)
 		(tok_flags,_,tok_value,source_loc) = tok
 		location = location + "\n" + FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
-	raise SourceCodeError(tok,"Error At:\n" + location + "\nInfo:" + FormatErrorMessage(message,variable_message))
+	raise SourceCodeError(tok,message + "\nAt:" + location + ":\n" + variable_message)
 
 
 ##########################################################################################################
