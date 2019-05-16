@@ -415,7 +415,7 @@ def t_TOK_CH_EX_INTERNAL(t):
 
 def t_error(t):
 	end = t.value.find("\n")
-	RaiseError(t,"Unknown syntax!",">" + t.value[:end] + "")
+	RaiseError(t,"Unknown syntax!","`" + t.value[:end] + "`")
 
 def t_eof(t):
 	return None

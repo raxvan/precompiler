@@ -81,17 +81,17 @@ def FormatFileLocation(abs_source_file,line):
 	return abs_source_file + "(" + str(line + 1) + ")"
 
 def RaiseErrorAtLocation(source_file,line,message,variable_message):
-	raise SourceCodeError(None,message + "\nAt:\n" + FormatFileLocation(source_file,line) + ":\n" + variable_message)
+	raise SourceCodeError(None,"\nError:\n>" + FormatFileLocation(source_file,line) + "-> " + variable_message + "\n.> " + message)
 
 def RaiseErrorAtToken(tok,message,variable_message):
 	(tok_flags,_,tok_value,source_loc) = tok
-	location = FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
+	location = ">" + FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
 	while (tok_flags & token_flags.k_child_token) != 0:
 		tok = source_loc[2]
 		#print(tok)
 		(tok_flags,_,tok_value,source_loc) = tok
-		location = location + "\n" + FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
-	raise SourceCodeError(tok,message + "\nAt:" + location + ":\n" + variable_message)
+		location = location + "\n>" + FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
+	raise SourceCodeError(tok,"\nError:\n" + location + "->" + variable_message + "\n> " + message)
 
 
 ##########################################################################################################
