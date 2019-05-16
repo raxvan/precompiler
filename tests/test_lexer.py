@@ -53,6 +53,11 @@ class TestLexer(unittest.TestCase):
 		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kComment)
 		#self.assertTrue(tok[3][2] == 1)
 
+	def test_comment_line_utf8(self):
+		tok = self.check_one_token("//comment '你好' ",1,2)
+		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
+		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kComment)
+
 	def test_comment_block(self):
 		tok = self.check_one_token("/*asdasd*/",1,2)
 		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
@@ -62,6 +67,26 @@ class TestLexer(unittest.TestCase):
 		tok = self.check_one_token("/*asd\"!@#$%\n^&*(\n)_+-=}{l;]['.m,/,./?><\nasd*/",1,2)
 		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag | _pc_utils.token_flags.k_endl_flag)
 		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kComment)
+
+	def test_high_string(self):
+		tok = self.check_one_token('"a /* */ b  // c"',1,2)
+		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
+		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kString)
+
+	def test_low_string(self):
+		tok = self.check_one_token("'a /* */ b // c'",1,2)
+		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
+		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kString)
+
+	def test_high_string_utf8(self):
+		tok = self.check_one_token('"你好 a /* */ b  // c"',1,2)
+		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
+		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kString)
+
+	def test_low_string_utf8(self):
+		tok = self.check_one_token("'你好 a /* */ b // c'",1,2)
+		self.assertTrue(tok[0] == _pc_utils.token_flags.k_trivial_flag)
+		self.assertTrue(tok[1] == _pc_utils.primitive_tokens.kString)
 
 	def test_identifier(self):
 		tok = self.check_one_token("abcASD",1,2)
