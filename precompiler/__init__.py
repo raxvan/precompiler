@@ -1,6 +1,10 @@
 __all__ = ["createLexer","createFileInterface","createContext","OutOptions","Features"]
 
+def _getExceptionClass():
+	import precompiler._utils.pc_utils
+	return precompiler._utils.pc_utils.SourceCodeError
 
+SourceCodeError = _getExceptionClass()
 
 def createLexer():
 	import precompiler._lexers.cpp_family_lexer

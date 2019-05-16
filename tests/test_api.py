@@ -12,10 +12,12 @@ def preprocess_and_test(file,ref_file,context_optione,output_options):
 	fi = precompiler.createFileInterface(lexer)
 	ctx = precompiler.createContext(fi,context_optione)
 	input_file_path = os.path.join(test_data,file)
+
 	ctx.AddInputFile(input_file_path)
 	output_file_path = os.path.join(test_data,"_.tmp")
 	ctx.SetOutputFile(output_file_path,output_options)
 	ctx.Run()
+
 	result_content = _pc_file_utils.open_and_read_textfile(output_file_path)
 	refference_content = _pc_file_utils.open_and_read_textfile(os.path.join(test_data,ref_file))
 	if result_content != refference_content:
