@@ -91,7 +91,7 @@ class DefaultFileManager(object):
 		(path,filename) = os.path.split(abs_file_path)
 		_pc_file_utils.make_paths(path)
 
-		h = open(abs_file_path,"w")
+		h = open(abs_file_path,"w",encoding='utf-8')
 		if h == None:
 			onFailedToCreateFile(abs_file_path)
 
