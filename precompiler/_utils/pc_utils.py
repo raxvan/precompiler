@@ -52,7 +52,7 @@ class precompiler_tokens:
 	k_endif = 18 #close if/elif block
 	k_else = 19  #else for #if/#elif block
 
-	k_colapse = 22 #reasignes a defines content with it's processed content
+	k_collapse = 22 #reasignes a defines content with it's processed content
 	k_cwstrip = 23 #remove whitespaces and comments
 
 	k_source = 24 #legacy
@@ -221,8 +221,8 @@ class WhitespaceMinimizer(SourceAssemblerStack):
 		self.last_solid_token = None
 
 		self.join_tokens = False
-		self.colapse_whitespaces = False
-		self.colapse_endlines = False
+		self.collapse_whitespaces = False
+		self.collapse_endlines = False
 
 
 	def can_remove_whitespaces_between(self,fist_roken,second_token):
@@ -243,12 +243,12 @@ class WhitespaceMinimizer(SourceAssemblerStack):
 					self.white_buffer = ""
 					return;
 
-			if self.colapse_whitespaces == True:
+			if self.collapse_whitespaces == True:
 				if self.white_buffer.find("\n") != -1:
 					self.white_buffer = "\n"
 				else:
 					self.white_buffer = " "
-			elif self.colapse_endlines == True:
+			elif self.collapse_endlines == True:
 				end = self.white_buffer.rfind("\n")
 				if end != -1:
 					if self.last_solid_token == None:

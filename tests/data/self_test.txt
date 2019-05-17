@@ -42,47 +42,47 @@
 //------------------------------------------------------------
 #define data $new_data
 #redefine _ data
-#colapse _
+#collapse _
 #if value("_") != "new_data":
-	#error "`#colapse _` Failed"
+	#error "`#collapse _` Failed"
 #else
-	#run print("`#colapse _`->Ok")
+	#run print("`#collapse _`->Ok")
 #endif
 #undef data
 //------------------------------------------------------------
 #redefine _ $123#\e   456
-#colapse _
+#collapse _
 #if value("_") != "123456":
 	#error "`clapse #redefine _ $123\\e 456` Failed"
 #else
-	#run print("`colapse #redefine _ $123\\e 456`->Ok")
+	#run print("`collapse #redefine _ $123\\e 456`->Ok")
 #endif
 
 //------------------------------------------------------------
 //------------------------------------------------------------
 //inline:
 #redefine _ $#inline "foo''"
-#colapse _
+#collapse _
 #if value("_") != 'foo\'\'':
-	#error "`colapse & #inline \"foo''\"` Failed"
+	#error "`collapse & #inline \"foo''\"` Failed"
 #else
-	#run print("`colapse & #inline \"foo''\"` -> Ok")
+	#run print("`collapse & #inline \"foo''\"` -> Ok")
 #endif
 //------------------------------------------------------------
 #redefine _ $#inline "foo\"\""
-#colapse _
+#collapse _
 #if value("_") != 'foo""':
-	#error "`colapse & #inline \"foo\\\"\\"\"` Failed"
+	#error "`collapse & #inline \"foo\\\"\\"\"` Failed"
 #else
-	#run print("`colapse & #inline \"foo\\\"\\\"\"` -> Ok")
+	#run print("`collapse & #inline \"foo\\\"\\\"\"` -> Ok")
 #endif
 //------------------------------------------------------------
 #redefine _ $#inline-run 1+2
-#colapse _
+#collapse _
 #if value("_") != "3":
-	#error "`colapse & #inline-run 1+2` Failed"
+	#error "`collapse & #inline-run 1+2` Failed"
 #else
-	#run print("`colapse & #inline-run 1+2` -> Ok")
+	#run print("`collapse & #inline-run 1+2` -> Ok")
 #endif
 
 //------------------------------------------------------------
@@ -106,56 +106,56 @@
 //Tests defines with arguments
 #define test ARG0$-ARG0-
 #redefine _ $test foo
-#colapse _
+#collapse _
 #if value("_") != "- foo-":
-	#error "`#define test ARG0$-ARG0- & #colapse test foo` Failed"
+	#error "`#define test ARG0$-ARG0- & #collapse test foo` Failed"
 #else
-	#run print("`#define test ARG0$-ARG0- & #colapse test foo` -> Ok")
+	#run print("`#define test ARG0$-ARG0- & #collapse test foo` -> Ok")
 #endif
 
 //------------------------------------------------------------
 #redefine _ $test (a,b)
-#colapse _
+#collapse _
 #if value("_") != "- (a,b)-":
-	#error "`#define test ARG0$-ARG0- & #colapse test (a,b)` Failed"
+	#error "`#define test ARG0$-ARG0- & #collapse test (a,b)` Failed"
 #else
-	#run print("`#define test ARG0$-ARG0- & #colapse test (a,b)` -> Ok")
+	#run print("`#define test ARG0$-ARG0- & #collapse test (a,b)` -> Ok")
 #endif
 //------------------------------------------------------------
 #redefine _ $test {for(i = -1; i < 100;i--){sum-=data[i];}}
-#colapse _
+#collapse _
 #if value("_") != "- {for(i = -1; i < 100;i--){sum-=data[i];}}-":
-	#error "`#define test ARG0$-ARG0- & #colapse test {for(i = -1; i < 100;i--){sum-=data[i];}}` Failed"
+	#error "`#define test ARG0$-ARG0- & #collapse test {for(i = -1; i < 100;i--){sum-=data[i];}}` Failed"
 #else
-	#run print("`#define test ARG0$-ARG0- & #colapse test {for(i = -1; i < 100;i--){sum-=data[i];}}` -> Ok")
+	#run print("`#define test ARG0$-ARG0- & #collapse test {for(i = -1; i < 100;i--){sum-=data[i];}}` -> Ok")
 #endif
 
 //------------------------------------------------------------
 #redefine test(a,b)$ a+b
 #redefine _ test(1,2)
-#colapse _
+#collapse _
 #if value("_") != " 1+2":
-	#error "`#define test(a,b)$ a+b & #colapse test(1,2)` Failed"
+	#error "`#define test(a,b)$ a+b & #collapse test(1,2)` Failed"
 #else
-	#run print("`#define test(a,b)$ a+b & #colapse test(1,2)` -> Ok")
+	#run print("`#define test(a,b)$ a+b & #collapse test(1,2)` -> Ok")
 #endif
 
 //------------------------------------------------------------
 #redefine _ test({1,2},2)
-#colapse _
+#collapse _
 #if value("_") != " {1,2}+2":
-	#error "`#define test(a,b)$a+b & #colapse test({1,2},2)` Failed"
+	#error "`#define test(a,b)$a+b & #collapse test({1,2},2)` Failed"
 #else
-	#run print("`#define test(a,b)$a+b & #colapse test({1,2},2)` -> Ok")
+	#run print("`#define test(a,b)$a+b & #collapse test({1,2},2)` -> Ok")
 #endif
 
 //------------------------------------------------------------
 #redefine _ __FILENAME__
-#colapse _
+#collapse _
 #if value("_") != '"self_test.txt"':
-	#error "`#redefine _ __FILENAME__ & #colapse _` Failed"
+	#error "`#redefine _ __FILENAME__ & #collapse _` Failed"
 #else
-	#run print("`#redefine _ __FILENAME__ & #colapse _` -> Ok")
+	#run print("`#redefine _ __FILENAME__ & #collapse _` -> Ok")
 #endif
 #if value("__LINE__") != '160':
 	#error '`value("__LINE__") != "?"` Failed'

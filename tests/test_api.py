@@ -31,13 +31,13 @@ class TestApi(unittest.TestCase):
 		self.assertTrue(preprocess_and_test("sample.txt","sample.ref",None,None)) 
 
 	def test_no_comments(self):
-		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments.ref",None,precompiler.OutOptions.remove_commentes)) 
+		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments.ref",None,precompiler.OutOptions.remove_comments)) 
 
 	def test_no_comments_and_newlines(self):
-		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments_and_newlines.ref",None,precompiler.OutOptions.remove_commentes | precompiler.OutOptions.colapse_endlines)) 
+		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments_and_newlines.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_endlines)) 
 
 	def test_wminimized(self):
-		self.assertTrue(preprocess_and_test("sample.txt","sample_wminimized.ref",None,precompiler.OutOptions.remove_commentes | precompiler.OutOptions.colapse_whitespaces))
+		self.assertTrue(preprocess_and_test("sample.txt","sample_wminimized.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_whitespaces))
 
 if __name__ == '__main__':
 	unittest.main()

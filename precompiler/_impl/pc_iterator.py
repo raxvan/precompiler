@@ -52,10 +52,10 @@ class FileTokenInterator(TokenInterator):
 ###########################################################################################################
 
 class ColapsedTokenInterator(TokenInterator):
-	def __init__(self,colapse_tok,tok_list,precompiler):
+	def __init__(self,collapse_tok,tok_list,precompiler):
 		TokenInterator.__init__(self,tok_list)
 		self.precompiler = precompiler
-		self.tok = colapse_tok
+		self.tok = collapse_tok
 
 	def GetFileUnit(self):
 		if self.next != None:
@@ -66,7 +66,7 @@ class ColapsedTokenInterator(TokenInterator):
 		return False
 
 	def Stop(self):
-		self.precompiler.close_colapse(self.tok)
+		self.precompiler.close_collapse(self.tok)
 
 ###########################################################################################################
 

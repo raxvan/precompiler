@@ -39,17 +39,17 @@ A combination of `#undef` and `#define`
 Syntax (is the same as the `#define`):
 - `#redefine ...`
 
-### colapse
+### collapse
 Reasgines the define value with it's processed value.
 
 Syntax:
-- `#colapse \w __ID__`
+- `#collapse \w __ID__`
 
 Exampled:
 ```
 #define a 1 + 2 + 3 + 4
 #define foo a + b
-#colapse foo
+#collapse foo
 //foo becomes `1 + 2 + 3 + 4 + b` instead of `a + b`
 
 ```

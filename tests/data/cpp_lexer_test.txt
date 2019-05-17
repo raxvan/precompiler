@@ -48,7 +48,7 @@ identifier
 
 #run print("hello world")
 
-#colapse FOO
+#collapse FOO
 #ifdef a
 #ifndef b
 #else
@@ -100,7 +100,7 @@ a,b,c
 # inline DEF
 # inline-run DEF
 # run print("hello world")
-# colapse FOO
+# collapse FOO
 # ifdef a
 # ifndef b
 # else

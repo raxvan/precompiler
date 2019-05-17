@@ -72,17 +72,17 @@ class DefaultFileManager(object):
 
 		file_writer = self.CreateFileOutputHandler(abs_file_path)
 
-		if (flags & (precompiler.OutOptions.colapse_endlines | precompiler.OutOptions.colapse_whitespaces | precompiler.OutOptions.try_whitespace_removal)) != 0:
+		if (flags & (precompiler.OutOptions.collapse_endlines | precompiler.OutOptions.collapse_whitespaces | precompiler.OutOptions.try_whitespace_removal)) != 0:
 			file_writer = _pc_utils.WhitespaceMinimizer(file_writer)
 
 			if ( flags & precompiler.OutOptions.try_whitespace_removal ) != 0:
 				file_writer.join_tokens = True
-			if ( flags & precompiler.OutOptions.colapse_whitespaces ) != 0:
-				file_writer.colapse_whitespaces = True
-			if ( flags & precompiler.OutOptions.colapse_endlines ) != 0:
-				file_writer.colapse_endlines = True
+			if ( flags & precompiler.OutOptions.collapse_whitespaces ) != 0:
+				file_writer.collapse_whitespaces = True
+			if ( flags & precompiler.OutOptions.collapse_endlines ) != 0:
+				file_writer.collapse_endlines = True
 
-		if ( flags & precompiler.OutOptions.remove_commentes ) != 0:
+		if ( flags & precompiler.OutOptions.remove_comments ) != 0:
 			file_writer = _impl_pc_output.CommentRemoval(file_writer)
 
 		return file_writer

@@ -31,7 +31,7 @@ g_cmd_with_id_arg = {
 
 	'source' : 'PRAGMA',
 
-	'colapse' : 'COLAPSE',
+	'collapse' : 'COLLAPSE',
 	'cwstrip' : 'CWSTRIP'
 }
 
@@ -179,7 +179,7 @@ _prep_map = {
 
 	'UNDEF' : ( _prep_tokens_ex.k_undefine, _prep_flags.k_command_flag ),
 	'PRAGMA' : ( _prep_tokens_ex.k_source, _prep_flags.k_command_flag ),
-	'COLAPSE' : ( _prep_tokens_ex.k_colapse, _prep_flags.k_command_flag ),
+	'COLLAPSE' : ( _prep_tokens_ex.k_collapse, _prep_flags.k_command_flag ),
 	'CWSTRIP' : ( _prep_tokens_ex.k_cwstrip, _prep_flags.k_command_flag ),
 	'ERR' : ( _prep_tokens_ex.k_error, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INCL' : ( _prep_tokens_ex.k_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),

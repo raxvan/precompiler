@@ -187,26 +187,26 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			self.precompiler._expand_define_with_evaluation(tok,def_inst,None)
 			return self
 
-	def _end_colapse(self):
+	def _end_collapse(self):
 		next_assembler = self.assembler.NextAssembler()
-		assert next_assembler != None, "Internal error on _end_colapse"
+		assert next_assembler != None, "Internal error on _end_collapse"
 		self.assembler.Close()
 		self.assembler = next_assembler
 
-	def _colapse_macro(self,tok):
+	def _collapse_macro(self,tok):
 		_tok_value = tok[2]
 		df = self.precompiler.get_required_define(tok,_tok_value[1])
 
 		if df.IsBuiltin() == True:
-			self.precompiler.RaiseErrorOnToken(tok,"#colapse does not work on builtin macros!",df.name)
+			self.precompiler.RaiseErrorOnToken(tok,"#collapse does not work on builtin macros!",df.name)
 		if df.GetRequiredArguments() != None:
-			self.precompiler.RaiseErrorOnToken(tok,"#colapse does not work on macros that require arguments!",df.name)
+			self.precompiler.RaiseErrorOnToken(tok,"#collapse does not work on macros that require arguments!",df.name)
 
 		tokens = df.GetValueAsTokens(tok)
 		df.ClearValue();
 
 		self.assembler = _impl_pc_output.VarDefineValueAssembler(df).SetNextAssembler(self.assembler)
-		self.precompiler.open_colapse(_impl_pc_iterator.ColapsedTokenInterator(tok,tokens,self.precompiler))
+		self.precompiler.open_collapse(_impl_pc_iterator.ColapsedTokenInterator(tok,tokens,self.precompiler))
 
 	def _run_command(self,tok,inline_content):
 		result = self.precompiler._evaluate_tok(tok);
@@ -304,8 +304,8 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 				else:
 					_prep.add_new_define(tok,_impl_pc_define.VarDefine(name,arguments,value,tok,_prep),True)
 
-			elif toktype == _cmd_tokens.k_colapse:
-				self._colapse_macro(tok)
+			elif toktype == _cmd_tokens.k_collapse:
+				self._collapse_macro(tok)
 
 			elif toktype == _cmd_tokens.k_run:
 				self._run_command(tok,False)
@@ -460,14 +460,14 @@ class _precompiler_backend(object):
 
 		return False
 
-	def open_colapse(self,token_iterator):
+	def open_collapse(self,token_iterator):
 		self.input_state.PushState(token_iterator,None)
 
-	def close_colapse(self,original_token):
+	def close_collapse(self,original_token):
 		if isinstance(self.parser_state,_pc_argument_parser):
-			self.RaiseErrorOnToken(original_token,"#colapse requires some arguments for a macro",None)
+			self.RaiseErrorOnToken(original_token,"#collapse requires some arguments for a macro",None)
 
-		self.parser_state._end_colapse()
+		self.parser_state._end_collapse()
 
 
 	def get_required_define(self,tok,define_name):
