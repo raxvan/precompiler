@@ -70,7 +70,7 @@ class context(_impl_pc_vm._precompiler_backend):
 	def AddUserDefine(self,define_name):
 		tokens = _pc_utils.precompiler_tokens
 		tok_def = (_pc_utils.precompiler_tokens.k_define, 0, (define_name,None,""), ["user", -1] )
-		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,[],None,tok_def,self))
+		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,None,tok_def,self))
 
 	#returns a bunch if debug info
 	def GetStats(self):
