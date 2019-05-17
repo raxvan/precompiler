@@ -10,6 +10,7 @@ import precompiler._utils.pc_utils as _pc_utils
 
 import timeit
 import datetime
+import os
 
 _token_flags = _pc_utils.token_flags
 _primitive_toks = _pc_utils.primitive_tokens
@@ -408,11 +409,15 @@ class _precompiler_backend(object):
 		self._cached_eval_ctx["defined"] = lambda name_str: self.is_defined(name_str)
 		self._cached_eval_ctx["value"] = lambda name_str: self._ev_value(name_str)
 		self._cached_eval_ctx["tokens"] = lambda name_str: self._ev_tokens(name_str)
+		self._cached_eval_ctx["env"] = lambda name_str: self._ev_env(name_str)
 
 		if self.eval_user_context != None:
 			self._cached_eval_ctx.update(self.eval_user_context)
 
 		return self._cached_eval_ctx
+
+	def _ev_env(self,name):
+		return os.environ.get(name,"")
 
 	def _ev_tok(self):
 		return self._cached_eval_tok
