@@ -35,7 +35,7 @@ class TestApi(unittest.TestCase):
 
 	def test_no_comments_and_newlines(self):
 		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments_and_newlines.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_endlines)) 
-
+	
 	def test_wminimized(self):
 		self.assertTrue(preprocess_and_test("sample.txt","sample_wminimized.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_whitespaces))
 

@@ -160,6 +160,10 @@ class SourceAssemblerStack(object):
 	def __init__(self,_parent_writer):
 		self.parent_writer = _parent_writer
 
+	def WriteRawStr(self,str_value):
+		if self.parent_writer != None:
+			self.parent_writer.WriteRawStr(str_value)
+
 	def Write(self,tok_tuple):
 		if self.parent_writer != None:
 			self.parent_writer.Write(tok_tuple)
@@ -179,6 +183,9 @@ class BufferedFileAssembler(object):
 		self.out_file_handle = os_file_handle
 		self.size = size_limit
 		self.name = abs_file_path
+
+	def WriteRawStr(self,str_value):
+		self.out_file_handle.write(str_value)
 
 	def Write(self,tok_tuple):
 		_tok_value = tok_tuple[2]

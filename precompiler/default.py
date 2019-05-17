@@ -54,6 +54,7 @@ class context(_impl_pc_vm._precompiler_backend):
 	def SetOutputFile(self,abs_file_path, flags):
 		output_handle = self.file_interface.CreateAssembler(abs_file_path,flags);
 		self.parser_state = _impl_pc_vm._pc_root_parser(self,output_handle)
+		return output_handle
 
 	#when you want to run the precompiler on a file without outputting anything.
 	def SetOutputToBlank(self):
