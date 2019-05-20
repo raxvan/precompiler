@@ -43,6 +43,9 @@ g_exp_with_string_or_id_arg = {
 	'inline-include' : 'INL_INCL', #include without processing
 
 	'inline' : 'INL_STR', #unbox the string (replace all \n with newlines, etc)
+
+	'config' : 'CONFIG',
+
 }
 
 g_cmd_line_eat = {
@@ -185,6 +188,7 @@ _prep_map = {
 	'INCL' : ( _prep_tokens_ex.k_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INL_INCL' : ( _prep_tokens_ex.k_inline_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INL_STR' : ( _prep_tokens_ex.k_inline_str, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
+	'CONFIG' : ( _prep_tokens_ex.k_load_config, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 }
 
 ###########################################################################################################

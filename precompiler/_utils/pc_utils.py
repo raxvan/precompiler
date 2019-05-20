@@ -65,6 +65,7 @@ class precompiler_tokens:
 	k_inline_include = 28 #file content is added directly to the output (without processing)
 	k_inline_eval = 29 #python eval, output is added to output
 	k_inline_str = 30 #if string then inlines unboxed string; if identfier then inlines the define value
+	k_load_config = 31 #loads an ini file and creates global defines from that ini
 
 
 ##########################################################################################################

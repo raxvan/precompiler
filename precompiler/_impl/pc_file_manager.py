@@ -29,6 +29,9 @@ class FileDataAdapter(object):
 			self.tok_content = self.tok_stash
 			self.tok_stash = None
 
+	def get_file_content(self):
+		return self.str_content
+
 	def tokens(self):
 		if self.tok_content == None:
 			self.tok_content = self.parent._load_tok_from_str(self.name,self.str_content)

@@ -11,6 +11,7 @@ import precompiler._utils.pc_utils as _pc_utils
 import timeit
 import datetime
 import os
+import configparser
 
 _token_flags = _pc_utils.token_flags
 _primitive_toks = _pc_utils.primitive_tokens
@@ -169,6 +170,8 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 
 		if toktype == _cmd_tokens.k_include:
 			self.precompiler.open_file_and_include(unboxed_str,tok)
+		elif toktype == _cmd_tokens.k_load_config:
+			self.precompiler.open_and_load_config_file(unboxed_str,tok)
 		elif toktype == _cmd_tokens.k_inline_include:
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[self.precompiler.open_file_and_get_str(unboxed_str,tok)],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_inline_str:
@@ -176,7 +179,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		elif toktype == _cmd_tokens.k_error:
 			self.precompiler.RaiseErrorOnToken(tok,"User #error!",unboxed_str)
 		else:
-			assert False, "Internal Error"
+			assert False, "Internal Error [" + str(toktype) + "]"
 
 		return self
 
@@ -307,7 +310,6 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 
 			elif toktype == _cmd_tokens.k_collapse:
 				self._collapse_macro(tok)
-
 			elif toktype == _cmd_tokens.k_run:
 				self._run_command(tok,False)
 			elif toktype == _cmd_tokens.k_inline_eval:
@@ -510,15 +512,39 @@ class _precompiler_backend(object):
 		self.condition_stack = self.input_state.BreakFileUnit();
 		self.active_condition = None
 
+	def open_and_load_config_file(self,strval,tok):
+
+		abs_file_path = self.evaluate_file_path(strval,tok)
+
+		file_handle_obj = self.file_interface.GetOrLoadFile(abs_file_path)
+
+		if self._dependency_list != None:
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
+
+		if abs_file_path.endswith(".ini"):
+			#parse ini file and add defines
+			config = configparser.ConfigParser(allow_no_value=True)
+			config.read_string("[void]\n" + file_handle_obj.get_file_content())
+
+			for section in config:
+				section_obj = config[section]
+				for key in section_obj:
+					define_name = "_CFG_" + str(key).upper()
+					string_value = str(section_obj[key])
+
+					self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))
+		else:
+			self.RaiseErrorOnToken(tok,"Unknown file format!.","Config file path `" + abs_file_path + "`.")
+
 	def open_file_and_include(self,strval,tok):
 
 		abs_file_path = self.evaluate_file_path(strval,tok)
 
-		depdendency_handle = self.file_interface.GetOrLoadFile(abs_file_path)
-		content = depdendency_handle.tokens()
+		file_handle_obj = self.file_interface.GetOrLoadFile(abs_file_path)
+		content = file_handle_obj.tokens()
 
 		if self._dependency_list != None:
-			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,depdendency_handle.hash()))
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)
