@@ -65,7 +65,7 @@ class context(_impl_pc_vm._precompiler_backend):
 	def AddUserDefineValue(self,define_name,string_value):
 		tokens = _pc_utils.precompiler_tokens
 		tok_def = (_pc_utils.precompiler_tokens.k_define, 0, (define_name,None,string_value), ["user", -1] )
-		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,string_value,None,tok_def,self))
+		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,None,tok_def,self))
 
 	#without value
 	def AddUserDefine(self,define_name):
