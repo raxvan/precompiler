@@ -7,11 +7,8 @@ import precompiler._impl.pc_default_macros as _pc_macros
 import precompiler._version.pc_version as _pc_ver
 import precompiler._utils.pc_utils as _pc_utils
 
-
-import timeit
-import datetime
 import os
-import configparser
+
 
 _token_flags = _pc_utils.token_flags
 _primitive_toks = _pc_utils.primitive_tokens
@@ -412,11 +409,28 @@ class _precompiler_backend(object):
 		self._cached_eval_ctx["value"] = lambda name_str: self._ev_value(name_str)
 		self._cached_eval_ctx["tokens"] = lambda name_str: self._ev_tokens(name_str)
 		self._cached_eval_ctx["env"] = lambda name_str: self._ev_env(name_str)
+		self._cached_eval_ctx["enabled"] = lambda name_str: self._ev_is_enabled(name_str)
 
 		if self.eval_user_context != None:
 			self._cached_eval_ctx.update(self.eval_user_context)
 
 		return self._cached_eval_ctx
+
+	def _ev_is_enabled(self,name):
+		et = self._ev_tok()
+		value = self.get_required_define(et,name).GetValueAsString(et).lower()
+		try:
+			ivalue = int(value)
+			if ivalue != 0:
+				return True
+			return False
+		except ValueError:
+			if value == "true" or value == "yes" or value == "on":
+				return True
+			if value == "false" or value == "no" or value == "off":
+				return True
+
+			self.RaiseErrorOnToken(tok,"Invalid value for define in 'enabled' ","Expected number,true/false,yes/no,on/off: " + name + "=\"" + str(value) + "\"")
 
 	def _ev_env(self,name):
 		return os.environ.get(name,"")
@@ -426,11 +440,11 @@ class _precompiler_backend(object):
 
 	def _ev_value(self,name):
 		et = self._ev_tok()
-		return self.get_required_define(et,name).GetValueAsString(et);
+		return self.get_required_define(et,name).GetValueAsString(et)
 
 	def _ev_tokens(self,name):
 		et = self._ev_tok()
-		return self.get_required_define(et,name).GetValueAsTokens(et);
+		return self.get_required_define(et,name).GetValueAsTokens(et)
 
 
 	def run_python_eval(self,tok,raw_code):
@@ -475,7 +489,6 @@ class _precompiler_backend(object):
 			self.RaiseErrorOnToken(original_token,"#collapse requires some arguments for a macro",None)
 
 		self.parser_state._end_collapse()
-
 
 	def get_required_define(self,tok,define_name):
 		result = self.input_state.FindVarDefineWithName(define_name)
@@ -523,13 +536,15 @@ class _precompiler_backend(object):
 
 		if abs_file_path.endswith(".ini"):
 			#parse ini file and add defines
+			import configparser
 			config = configparser.ConfigParser(allow_no_value=True)
+			config.optionxform=str #preserve case for keys
 			config.read_string("[void]\n" + file_handle_obj.get_file_content())
 
 			for section in config:
 				section_obj = config[section]
 				for key in section_obj:
-					define_name = "_CFG_" + str(key).upper()
+					define_name = str(key)
 					string_value = str(section_obj[key])
 
 					self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))

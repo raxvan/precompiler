@@ -1,38 +1,52 @@
 
+#source info
+
 #config "ini_config.ini"
 
 ------------------------
-_CFG_INI_VALUE_0
+_INI_VALUE_0
 ------------------------
-_CFG_INI_VALUE_1
+_INI_VALUE_1
 ------------------------
-_CFG_INI_VALUE_2
+_INI_VALUE_2
 ------------------------
-_CFG_INI_VALUE_3
+_INI_VALUE_3
 ------------------------
-_CFG_INI_VALUE_4
+_INI_VALUE_4
 ------------------------
-_CFG_INI_VALUE_5
+_INI_VALUE_5
 ------------------------
-_CFG_INI_VALUE_6
+_INI_VALUE_6
 ------------------------
-_CFG_INI_VALUE_7
+_INI_VALUE_7
 ------------------------
-_CFG_INI_VALUE_8
+_INI_VALUE_8
 ------------------------
-_CFG_INI_VALUE_9
+_INI_VALUE_9
 ------------------------
-_CFG_INI_VALUE_10
+_INI_VALUE_10
 ------------------------
-_CFG_INI_VALUE_11
+_INI_VALUE_11
 ------------------------
-_CFG_INI_VALUE_12
+_INI_VALUE_12
 ------------------------
-_CFG_INI_VALUE_13
+_INI_VALUE_13
 ------------------------
-_CFG_INI_VALUE_14
+_INI_VALUE_14
 ------------------------
-_CFG_INI_VALUE_15
+_INI_VALUE_15
 ------------------------
 
+#if enabled("_INI_VALUE_4") == False or enabled("_INI_VALUE_5") == False or enabled("_INI_VALUE_7") == False:
+	#error "`enabled` failed with ini config"
+#endif
+#if enabled("_INI_VALUE_9") == False or enabled("_INI_VALUE_11") == False:
+	#error "`enabled` failed with ini config"
+#endif
+
+
 #run print("OK")
+
+#source break
+
+#error "break failed!"
