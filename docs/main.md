@@ -179,14 +179,14 @@ Builtin macros
 7. `__LINE__` Current line as number
 7. `__NOW_TIME__` Current time as string. Format `%I-%M%p-%b-%d` (note that time is queried when macro is expanded)
 
-
 Python eval functions
 ---------------------
 
 1. `defined(macro_name_str)` -> *True/False* > checks if a macro with name `macro_name_str` is defined or not
 2. `value(macro_name_str)` -> *Str* > returnes the string value of a macro named `macro_name_str`. Returns None if macro does not exist
 3. `tokens(macro_name_str)` -> *[token]* > returnes value of macro named `macro_name_str` in the form of token list. None if macro does not exist
-
+4. `enabled(macro_name_str)` -> *True/False* > checks if the define is one of the following values (ignoring case): number,yes/no,true/false,on/off. Returns True/False
+5. `env(str)` -> *Str* > Returns enviroment variables as string
 
 File search paths
 -----------------
