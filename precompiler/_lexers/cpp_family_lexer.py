@@ -41,6 +41,8 @@ g_exp_with_string_or_id_arg = {
 
 	'include' : 'INCL', #regular include
 	'inline-include' : 'INL_INCL', #include without processing
+	'try-include' : 'TRY_INCL', #regular include
+	'try-inline-include' : 'TRY_INL_INCL', #include without processing
 
 	'inline' : 'INL_STR', #unbox the string (replace all \n with newlines, etc)
 
@@ -187,6 +189,9 @@ _prep_map = {
 	'ERR' : ( _prep_tokens_ex.k_error, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INCL' : ( _prep_tokens_ex.k_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'INL_INCL' : ( _prep_tokens_ex.k_inline_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
+	'TRY_INCL' : ( _prep_tokens_ex.k_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag | _prep_flags.k_no_error),
+	'TRY_INL_INCL' : ( _prep_tokens_ex.k_inline_include, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag | _prep_flags.k_no_error),
+
 	'INL_STR' : ( _prep_tokens_ex.k_inline_str, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 	'CONFIG' : ( _prep_tokens_ex.k_load_config, _prep_flags.k_id_str_argument_flag | _prep_flags.k_command_flag ),
 }

@@ -28,14 +28,14 @@ def preprocess_and_test(file,ref_file,context_optione,output_options):
 class TestApi(unittest.TestCase):
 
 	def test_no_options(self):
-		self.assertTrue(preprocess_and_test("sample.txt","sample.ref",None,None)) 
+		self.assertTrue(preprocess_and_test("sample.txt","sample_no_flags.ref",None,None))
 
 	def test_no_comments(self):
-		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments.ref",None,precompiler.OutOptions.remove_comments)) 
+		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments.ref",None,precompiler.OutOptions.remove_comments))
 
 	def test_no_comments_and_newlines(self):
-		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments_and_newlines.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_endlines)) 
-	
+		self.assertTrue(preprocess_and_test("sample.txt","sample_no_comments_and_newlines.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_endlines))
+
 	def test_wminimized(self):
 		self.assertTrue(preprocess_and_test("sample.txt","sample_wminimized.ref",None,precompiler.OutOptions.remove_comments | precompiler.OutOptions.collapse_whitespaces))
 

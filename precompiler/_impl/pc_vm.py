@@ -104,7 +104,7 @@ class _pc_argument_parser(_impl_pc_iterator.PrecompilerExecController):
 			#last token from arg list, push to argument and than exit
 			self.push_to_argument(tok)
 			if(self.target_aquired_content == False):
-				return self #because we did not get any valuable content, we wait 
+				return self #because we did not get any valuable content, we wait
 
 		else:
 			(_,expected_type,expected_value,_) = lh
@@ -163,14 +163,17 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 		else:
 			self.precompiler.RaiseErrorOnToken(tok,"Unknown #source token!","Value `" + _id + "`")
 
-	def _evaluate_functions_with_string_arg(self,tok,toktype,unboxed_str):
+	def _evaluate_functions_with_string_arg(self,tok,toktype,unboxed_str,noerror_flag):
 
 		if toktype == _cmd_tokens.k_include:
-			self.precompiler.open_file_and_include(unboxed_str,tok)
+			self.precompiler.open_file_and_include(unboxed_str,tok,noerror_flag)
 		elif toktype == _cmd_tokens.k_load_config:
 			self.precompiler.open_and_load_config_file(unboxed_str,tok)
 		elif toktype == _cmd_tokens.k_inline_include:
-			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[self.precompiler.open_file_and_get_str(unboxed_str,tok)],_pc_utils.TokSource(tok)))
+			#inline write directly to output
+			self.precompiler.open_file_and_inline_include(self.assembler,unboxed_str,tok,noerror_flag)
+			#if file_content_str != None:
+			#	self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_content_str],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_inline_str:
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[unboxed_str],_pc_utils.TokSource(tok)))
 		elif toktype == _cmd_tokens.k_error:
@@ -200,7 +203,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 
 		if df.IsBuiltin() == True:
 			self.precompiler.RaiseErrorOnToken(tok,"#collapse does not work on builtin macros!",df.name)
-		if df.GetRequiredArguments() != None:
+		elif df.GetRequiredArguments() != None:
 			self.precompiler.RaiseErrorOnToken(tok,"#collapse does not work on macros that require arguments!",df.name)
 
 		tokens = df.GetValueAsTokens(tok)
@@ -289,13 +292,14 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			#all this commands should have k_command_flag
 			if (tokflags & _token_flags.k_id_str_argument_flag) != 0:
 				(_,name_or_str,type_of_argument) = _tok_value
+				no_error_flag = (tokflags & _token_flags.k_no_error) != 0
 
 				if type_of_argument == _token_flags.k_identifier_flag:
 					string_value = _prep.get_required_define(tok,name_or_str).GetValueAsString(tok)
-					return self._evaluate_functions_with_string_arg(tok,toktype,string_value)
+					return self._evaluate_functions_with_string_arg(tok,toktype,string_value,no_error_flag)
 
 				elif type_of_argument == _token_flags.k_string_flag:
-					return self._evaluate_functions_with_string_arg(tok,toktype,_pc_utils.UnboxString(name_or_str))
+					return self._evaluate_functions_with_string_arg(tok,toktype,_pc_utils.UnboxString(name_or_str),no_error_flag)
 
 			elif toktype == _cmd_tokens.k_define:
 				(_,name,content) = _tok_value
@@ -510,16 +514,16 @@ class _precompiler_backend(object):
 
 		self.input_state.AddGlobalDefine(def_instance)
 
-	def evaluate_file_path(self,strval,tok):
+	def evaluate_file_path(self,strval,tok, no_error_on_failed_to_load):
 		current_compilation_unit = self.input_state.GetActiveSourceFile()
 		abs_path = self.file_interface.FindFileWithPath(strval,current_compilation_unit)
 		if abs_path == None:
+			if no_error_on_failed_to_load:
+				return None
 			self.RaiseErrorOnToken(tok,"Could not locate file!","Path: `" + strval + "`")
 		return abs_path
 
-	def open_file_and_get_str(self,strval,tok):
-		abs_file_path = self.evaluate_file_path(strval,tok)
-		return self.file_interface.GetFileStr(abs_file_path)
+
 
 	def _break_file_unit(self):
 		self.condition_stack = self.input_state.BreakFileUnit();
@@ -527,7 +531,7 @@ class _precompiler_backend(object):
 
 	def open_and_load_config_file(self,strval,tok):
 
-		abs_file_path = self.evaluate_file_path(strval,tok)
+		abs_file_path = self.evaluate_file_path(strval,tok,False)
 
 		file_handle_obj = self.file_interface.GetOrLoadFile(abs_file_path)
 
@@ -551,11 +555,36 @@ class _precompiler_backend(object):
 		else:
 			self.RaiseErrorOnToken(tok,"Unknown file format!.","Config file path `" + abs_file_path + "`.")
 
-	def open_file_and_include(self,strval,tok):
+	def _get_file_handle(self,strval,tok, no_error_on_failed_to_load):
 
-		abs_file_path = self.evaluate_file_path(strval,tok)
+		abs_file_path = self.evaluate_file_path(strval,tok,no_error_on_failed_to_load)
+		if no_error_on_failed_to_load:
+			if abs_file_path == None:
+				return (None,None)
+			file_handle_obj = self.file_interface.GetOrTryLoadFile(abs_file_path)
+			if file_handle_obj == None:
+				return (None,None)
+			return (file_handle_obj,abs_file_path)
+		else:
+			return (self.file_interface.GetOrLoadFile(abs_file_path),abs_file_path)
 
-		file_handle_obj = self.file_interface.GetOrLoadFile(abs_file_path)
+	def open_file_and_inline_include(self,assembler,strval,tok, no_error_on_failed_to_load):
+
+		(file_handle_obj, abs_file_path) = self._get_file_handle(strval, tok, no_error_on_failed_to_load)
+		if file_handle_obj == None:
+			return
+
+		if self._dependency_list != None:
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
+
+		assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_handle_obj.get_file_content()],_pc_utils.TokSource(tok)))
+
+	def open_file_and_include(self,strval,tok, no_error_on_failed_to_load):
+
+		(file_handle_obj, abs_file_path) = self._get_file_handle(strval, tok, no_error_on_failed_to_load)
+		if file_handle_obj == None:
+			return
+
 		content = file_handle_obj.tokens()
 
 		if self._dependency_list != None:

@@ -53,7 +53,7 @@ class DefaultFileManager(object):
 		self.search_paths = []
 
 		self.database = {}
-		
+
 
 		self.environ_regex = r"\{(?P<name>[a-zA-Z_]\w*)\}"
 		self.local_environ = {}
@@ -107,7 +107,7 @@ class DefaultFileManager(object):
 
 		handle = FileDataAdapter(abs_file_path,self)
 
-		(handle.str_content,handle.content_sha512_str) = self._load_file_str(abs_file_path)
+		(handle.str_content,handle.content_sha512_str) = self._load_file_str(abs_file_path, True)
 		# https://github.com/raxvan/precompiler/issues/3
 		# tokens are loaded later;
 		# This allows for loading all files fast without running the lexer
@@ -116,15 +116,35 @@ class DefaultFileManager(object):
 
 		return handle
 
+	def GetOrTryLoadFile(self,abs_file_path):
+		fh = self.database.get(abs_file_path,None)
+		if fh != None:
+			return fh
+
+		try_result = self._load_file_str(abs_file_path, False)
+		if try_result == None:
+			return None
+
+		handle = FileDataAdapter(abs_file_path,self)
+
+		(handle.str_content,handle.content_sha512_str) = try_result
+
+		self.database[abs_file_path] = handle
+
+		return handle
+
 	def CreateOutputComment(self,message):
 		return self.lexer_interface.CreateLineCommentFromText(message)
 
-	def _load_file_str(self,abs_file_path):
+	def _load_file_str(self,abs_file_path, error_on_fail_to_load):
 		start_time = time.time()
 		file_content = _pc_file_utils.open_and_read_textfile(abs_file_path)
 		if file_content == None:
-			file_content = self.onFailedToLoadFile(abs_file_path)
-		content_hash = hashlib.sha512(file_content.encode()).hexdigest() 
+			if error_on_fail_to_load:
+				file_content = self.onFailedToLoadFile(abs_file_path)
+			else:
+				return None
+		content_hash = hashlib.sha512(file_content.encode()).hexdigest()
 		end_time = time.time()
 
 		self.time_io_read += (end_time - start_time)
@@ -198,7 +218,7 @@ class DefaultFileManager(object):
 		fh = self.database.get(abs_file_path,None)
 		assert fh != None, "Internal Error; The file stash should already have the file loaded"
 		fh.stash()
-		
+
 	def RevertStash(self,abs_file_path):
 		fh = self.database.get(abs_file_path,None)
 		assert fh != None, "Internal Error; The file stash should already have the file loaded"

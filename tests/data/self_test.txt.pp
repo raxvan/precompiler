@@ -1,7 +1,7 @@
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //-- ! Preprocessed file, CHANGES WILL BE DISCARDED ! ----------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------------------------------------------------------
-//-- src path: /pak/precompiler.git/precompiler/tests/data/self_test.txt
+//-- src path: /precompiler/tests/data/self_test.txt
 //-- preprocessor version:0.1.3
 //--------------------------------------------------------------------------------------------------------------------------------------------
 //------------------------------------------------------------
@@ -178,6 +178,150 @@
 
 
 	
+
+
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+
+//------------------------------------------------------------
+//Comment Line
+/*
+block comment
+*/
+identifier
+123.123
+.12f
+3123.f
+123.
+1e-6f
+1e+6f
+42
++-/
+{
+}
+(
+)
+[
+]
+*!%^&*()_+:<>,./.?>[];\|~`
+
+"string"
+'lowstring'
+
+"st'r'ng"
+'lows"t"ring'
+
+//------------------------------
+
+#source once
+#source dup
+#source break
+#error "err"
+#error FOO
+
+#include "a"
+#include "a/b/{FILE}"
+#include DEF
+#try-include "a"
+#try-include "a/b/{FILE}"
+#try-include DEF
+
+#inline-include "a"
+#inline-include "a/b/{FILE}"
+#inline-include DEF
+#try-inline-include "a"
+#try-inline-include "a/b/{FILE}"
+#try-inline-include DEF
+
+#inline "a\n\t"
+#inline-run "1 + 2 + 3"
+#inline DEF
+#inline-run DEF
+
+#run print("hello world")
+
+#collapse FOO
+#ifdef a
+#ifndef b
+#else
+#endif
+#if 1 + 2 == True:
+#if False == True and False
+#if True: #else #endif
+#elif 1 + 2 == True:
+#elif False == True and False
+
+#define a
+#define a 1
+#define a 1 + 2
+#define a _A _B $ _A + _B
+#define a (_A,_B) $ _A + _B
+#define a(
+#define a+
+#define a#
+
+#define a $ _A + _B
+#define a (_A,_B) $
+
+#cwstrip DEFINE
+
+a#\t b
+a#\n b
+a#\s b
+a#\w b
+a#\e b
+
+a,b,c
+(a,b,c)
+
+//------------------------------
+
+# source once
+# source dup
+# source break
+# error "err"
+# error FOO
+# include "a"
+# include "a/b/{FILE}"
+# include DEF
+# try-include "a"
+# try-include "a/b/{FILE}"
+# try-include DEF
+# inline-include "a"
+# inline-include "a/b/{FILE}"
+# inline-include DEF
+# try-inline-include "a"
+# try-inline-include "a/b/{FILE}"
+# try-inline-include DEF
+# inline "a\n\t"
+# inline-run "1 + 2 + 3"
+# inline DEF
+# inline-run DEF
+# run print("hello world")
+# collapse FOO
+# ifdef a
+# ifndef b
+# else
+# endif
+# if 1 + 2 == True:
+# if False == True and False
+# if True: #else #endif
+# elif 1 + 2 == True:
+# elif False == True and False
+# define a
+# define a 1
+# define a 1 + 2
+# define a _A _B $ _A + _B
+# define a (_A,_B) $ _A + _B
+# define a(
+# define a+
+# define a$
+# define a $ _A + _B
+# define a (_A,_B) $
+# cwstrip DEFINE
+
+
 
 
 //------------------------------------------------------------

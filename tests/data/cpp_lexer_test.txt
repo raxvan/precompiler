@@ -36,10 +36,16 @@ identifier
 #include "a"
 #include "a/b/{FILE}"
 #include DEF
+#try-include "a"
+#try-include "a/b/{FILE}"
+#try-include DEF
 
 #inline-include "a"
 #inline-include "a/b/{FILE}"
 #inline-include DEF
+#try-inline-include "a"
+#try-inline-include "a/b/{FILE}"
+#try-inline-include DEF
 
 #inline "a\n\t"
 #inline-run "1 + 2 + 3"
@@ -92,9 +98,15 @@ a,b,c
 # include "a"
 # include "a/b/{FILE}"
 # include DEF
+# try-include "a"
+# try-include "a/b/{FILE}"
+# try-include DEF
 # inline-include "a"
 # inline-include "a/b/{FILE}"
 # inline-include DEF
+# try-inline-include "a"
+# try-inline-include "a/b/{FILE}"
+# try-inline-include DEF
 # inline "a\n\t"
 # inline-run "1 + 2 + 3"
 # inline DEF
