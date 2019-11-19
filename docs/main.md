@@ -87,8 +87,11 @@ Syntax:
 1. `#include \w __PATH__`
 2. `#include \w __ID__`
 
+### try-include
+Same as `#include` but does not throw error if file is not found or can't be opened.
+
 ### config
-Will load a markup file. 
+Will load a markup file.
 
 Syntax:
 1. `#include \w __PATH__`
@@ -104,6 +107,9 @@ Loads the file directly into the output, without processing it.
 Syntax:
 1. `#inline-include \w __PATH__`
 2. `#inline-include \w __ID__`
+
+### try-inline-include
+same as `#inline-include` but does not throw error if file is not found or can't be opened.
 
 ### inline
 Outputs content without processing it.
