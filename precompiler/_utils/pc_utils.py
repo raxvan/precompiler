@@ -92,6 +92,8 @@ def RaiseErrorAtToken(tok,message,variable_message):
 		#print(tok)
 		(tok_flags,_,tok_value,source_loc) = tok
 		location = location + "\n>" + FormatFileLocation(source_loc[0],source_loc[1]) + "->" + str(tok_value)
+	if variable_message == None:
+		variable_message = ""
 	raise SourceCodeError(tok,"\nError:\n" + location + "->" + variable_message + "\n> " + message)
 
 

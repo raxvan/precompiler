@@ -94,11 +94,11 @@ Same as `#include` but does not throw error if file is not found or can't be ope
 Will load a markup file.
 
 Syntax:
-1. `#include \w __PATH__`
-2. `#include \w __ID__`
+1. `#config \w __PATH__`
+2. `#config \w __ID__`
 
 Supported formats:
-1. `.ini` Each ini entry will be added as a upper case define with `_CFG_` added. Example ini `[DEFAULT] \n some_value = 10` will add a define `_CFG_SOME_VALUE` with value `10`
+1. `.ini` Each ini entry will be added as a upper case define. Example ini `[DEFAULT] \n some_value = 10` will add a define `SOME_VALUE` with value `10`
 
 
 ### inline-include

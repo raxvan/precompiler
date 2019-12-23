@@ -37,6 +37,12 @@ _INI_VALUE_14
 _INI_VALUE_15
 ------------------------
 
+lowercase_entry
+
+LOWERCASE_ENTRY
+
+------------------------
+
 #if enabled("_INI_VALUE_4") == False or enabled("_INI_VALUE_5") == False or enabled("_INI_VALUE_7") == False:
 	#error "`enabled` failed with ini config"
 #endif

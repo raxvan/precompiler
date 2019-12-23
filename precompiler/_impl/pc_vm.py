@@ -548,7 +548,7 @@ class _precompiler_backend(object):
 			for section in config:
 				section_obj = config[section]
 				for key in section_obj:
-					define_name = str(key)
+					define_name = str(key).upper()
 					string_value = str(section_obj[key])
 
 					self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))
