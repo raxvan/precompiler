@@ -43,11 +43,13 @@ class context(_impl_pc_vm._precompiler_backend):
 		self._invalidate_eval_ctx()
 
 	#load a configuration file; see `#config CFG_FILE` command
-	def LoadConfigFile(self,abs_config_file_path,mark_as_dependency):
+	def LoadConfigFile(self,abs_config_file_path):
 		file_handle_obj,raw_defines_list = self.load_config_defines(abs_config_file_path)
 		if file_handle_obj == None:
 			return False
+
 		self.mark_dependency(abs_config_file_path,file_handle_obj)
+
 		for define_name,string_value in raw_defines_list:
 			tok_def = _pc_utils.CreateUserDefineSourceToken(define_name,string_value)
 			self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok_def,self))

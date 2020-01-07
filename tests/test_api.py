@@ -35,7 +35,7 @@ def preprocess_and_test(file,ref_file,context_option,output_options):
 
 def test_LoadConfigFile(file,ref_file):
 	ctx = create_context(file,None, None)
-	ctx.LoadConfigFile(os.path.join(test_data,file),True)
+	ctx.LoadConfigFile(os.path.join(test_data,file))
 	ctx.Run()
 	return compare_results(file,ref_file)
 
