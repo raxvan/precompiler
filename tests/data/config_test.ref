@@ -1,0 +1,10 @@
+[DEFAULT]
+
+"a" = "a"
+
+test_define_B = "b"
+
+; with caps: "b"
+
+
+

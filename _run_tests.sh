@@ -23,11 +23,12 @@ export ENV_TEST
 python3 $THIS/tests/test_precompiler.py $THIS/tests/data/self_test.txt
 
 echo "============================================================================="
+echo "Run config tester:"
+python3 $THIS/tests/test_precompiler.py $THIS/tests/data/ini_tester.txt
+
+echo "============================================================================="
 echo "Testing Api:"
 cd $THIS/tests/
 python3 -m unittest -v test_api.py
 
 
-echo "============================================================================="
-echo "Run config tester:"
-python3 $THIS/tests/test_precompiler.py $THIS/tests/data/ini_tester.txt

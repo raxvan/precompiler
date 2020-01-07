@@ -529,14 +529,8 @@ class _precompiler_backend(object):
 		self.condition_stack = self.input_state.BreakFileUnit();
 		self.active_condition = None
 
-	def open_and_load_config_file(self,strval,tok):
-
-		abs_file_path = self.evaluate_file_path(strval,tok,False)
-
+	def load_config_defines(self,abs_file_path):
 		file_handle_obj = self.file_interface.GetOrLoadFile(abs_file_path)
-
-		if self._dependency_list != None:
-			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
 
 		if abs_file_path.endswith(".ini"):
 			#parse ini file and add defines
@@ -545,15 +539,32 @@ class _precompiler_backend(object):
 			config.optionxform=str #preserve case for keys
 			config.read_string("[void]\n" + file_handle_obj.get_file_content())
 
+			result = []
 			for section in config:
 				section_obj = config[section]
 				for key in section_obj:
 					define_name = str(key).upper()
 					string_value = str(section_obj[key])
+					result.append((define_name,string_value))
 
-					self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))
+			return (True,result)
 		else:
+			return (False,[])
+
+
+	def open_and_load_config_file(self,strval,tok):
+
+		abs_file_path = self.evaluate_file_path(strval,tok,False)
+
+		if self._dependency_list != None:
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
+
+		success,raw_defines_list = self.load_config_defines(abs_file_path)
+		if success == False:
 			self.RaiseErrorOnToken(tok,"Unknown file format!.","Config file path `" + abs_file_path + "`.")
+
+		for define_name,string_value in raw_defines_list:
+			self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))
 
 	def _get_file_handle(self,strval,tok, no_error_on_failed_to_load):
 

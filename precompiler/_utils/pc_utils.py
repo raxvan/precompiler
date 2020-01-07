@@ -70,6 +70,12 @@ class precompiler_tokens:
 
 ##########################################################################################################
 
+
+def CreateUserDefineSourceToken(define_name,string_value):
+	return (precompiler_tokens.k_define, 0, (define_name,None,string_value), ["user", -1] )
+
+##########################################################################################################
+
 #used to report errors in a generic source code file
 class SourceCodeError(Exception):
 	def __init__(self, tok, message):

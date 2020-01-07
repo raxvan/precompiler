@@ -42,6 +42,15 @@ class context(_impl_pc_vm._precompiler_backend):
 
 		self._invalidate_eval_ctx()
 
+	#load a configuration file; see `#config CFG_FILE` command
+	def LoadConfigFile(self,abs_config_file_path):
+		success,raw_defines_list = self.load_config_defines(abs_config_file_path)
+		if success == False:
+			return False
+		for define_name,string_value in raw_defines_list:
+			tok_def = _pc_utils.CreateUserDefineSourceToken(define_name,string_value)
+			self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok_def,self))
+
 	#returns the file handler
 	def AddInputFile(self,abs_file_path):
 		self.init_default_macros()
@@ -64,14 +73,14 @@ class context(_impl_pc_vm._precompiler_backend):
 	#define with value
 	def AddUserDefineValue(self,define_name,string_value):
 		tokens = _pc_utils.precompiler_tokens
-		tok_def = (_pc_utils.precompiler_tokens.k_define, 0, (define_name,None,string_value), ["user", -1] )
-		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,None,tok_def,self))
+		tok_def = _pc_utils.CreateUserDefineSourceToken(define_name,string_value)
+		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok_def,self))
 
 	#without value
 	def AddUserDefine(self,define_name):
 		tokens = _pc_utils.precompiler_tokens
-		tok_def = (_pc_utils.precompiler_tokens.k_define, 0, (define_name,None,""), ["user", -1] )
-		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,None,tok_def,self))
+		tok_def = _pc_utils.CreateUserDefineSourceToken(define_name,"")
+		self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,"",tok_def,self))
 
 	#returns a bunch if debug info
 	def GetStats(self):

@@ -72,7 +72,6 @@ Possible values for `__ID__` where identifier can be:
 3. `dup` will enable inclusion of this file multiple times (to bypass `SourceOnceByDefault` option)
 4. `info` will output a comment containing information about the source file
 
-
 ### error
 Stops execution and throws an error.
 
