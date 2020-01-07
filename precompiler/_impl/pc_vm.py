@@ -569,7 +569,7 @@ class _precompiler_backend(object):
 		if file_handle_obj == None:
 			self.RaiseErrorOnToken(tok,"Unknown file format!.","Config file path `" + abs_file_path + "`.")
 
-		self.mark_dependency(abs_file_path,file_handle_obj.hash())
+		self.mark_dependency(abs_file_path,file_handle_obj)
 
 		for define_name,string_value in raw_defines_list:
 			self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))
@@ -593,7 +593,7 @@ class _precompiler_backend(object):
 		if file_handle_obj == None:
 			return
 
-		self.mark_dependency(abs_file_path,file_handle_obj.hash())
+		self.mark_dependency(abs_file_path,file_handle_obj)
 
 		assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_handle_obj.get_file_content()],_pc_utils.TokSource(tok)))
 
@@ -605,7 +605,7 @@ class _precompiler_backend(object):
 
 		content = file_handle_obj.tokens()
 
-		self.mark_dependency(abs_file_path,file_handle_obj.hash())
+		self.mark_dependency(abs_file_path,file_handle_obj)
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)
