@@ -529,6 +529,13 @@ class _precompiler_backend(object):
 		self.condition_stack = self.input_state.BreakFileUnit();
 		self.active_condition = None
 
+	def mark_dependency(self,abs_dependency_file,file_handle_obj):
+		if self._dependency_list != None:
+			fh = file_handle_obj
+			if fh == None:
+				fh = self.file_interface.GetOrLoadFile(abs_dependency_file)
+			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_dependency_file,fh.hash()))
+
 	def load_config_defines(self,abs_file_path):
 		file_handle_obj = self.file_interface.GetOrLoadFile(abs_file_path)
 
@@ -547,21 +554,22 @@ class _precompiler_backend(object):
 					string_value = str(section_obj[key])
 					result.append((define_name,string_value))
 
-			return (True,result)
+			return (file_handle_obj,result)
 		else:
-			return (False,[])
+			return (None,[])
+
+
 
 
 	def open_and_load_config_file(self,strval,tok):
 
 		abs_file_path = self.evaluate_file_path(strval,tok,False)
 
-		if self._dependency_list != None:
-			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
-
-		success,raw_defines_list = self.load_config_defines(abs_file_path)
-		if success == False:
+		file_handle_obj,raw_defines_list = self.load_config_defines(abs_file_path)
+		if file_handle_obj == None:
 			self.RaiseErrorOnToken(tok,"Unknown file format!.","Config file path `" + abs_file_path + "`.")
+
+		self.mark_dependency(abs_file_path,file_handle_obj.hash())
 
 		for define_name,string_value in raw_defines_list:
 			self.input_state.AddGlobalDefine(_impl_pc_define.VarDefine(define_name,None,string_value,tok,self))
@@ -585,8 +593,7 @@ class _precompiler_backend(object):
 		if file_handle_obj == None:
 			return
 
-		if self._dependency_list != None:
-			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
+		self.mark_dependency(abs_file_path,file_handle_obj.hash())
 
 		assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_handle_obj.get_file_content()],_pc_utils.TokSource(tok)))
 
@@ -598,8 +605,7 @@ class _precompiler_backend(object):
 
 		content = file_handle_obj.tokens()
 
-		if self._dependency_list != None:
-			self._dependency_list.append((self.input_state.GetActiveSourceFile(),abs_file_path,file_handle_obj.hash()))
+		self.mark_dependency(abs_file_path,file_handle_obj.hash())
 
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)
