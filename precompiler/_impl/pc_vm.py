@@ -136,14 +136,14 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 
 	def _create_file_info(self,tok):
 		_fi = self.precompiler.file_interface
-		active_file_path = self.precompiler.input_state.GetActiveSourceFile()
-		file_handle = _fi.GetOrLoadFile(active_file_path)
+		root_file_path = self.precompiler.input_state.GetRootSourceFile()
+		file_handle = _fi.GetOrLoadFile(root_file_path)
+		#"-- p-ver:" + str(_pc_ver._PCVER_HIGH_) + "." + str(_pc_ver._PCVER_LOW0_) + "." + str(_pc_ver._PCVER_LOW1_),
 		lines = [
 			"--------------------------------------------------------------------------------------------------------------------------------------------",
 			"-- ! Preprocessed file, CHANGES WILL BE DISCARDED ! ----------------------------------------------------------------------------------------",
 			"--------------------------------------------------------------------------------------------------------------------------------------------",
-			"-- src path: " + active_file_path,
-			"-- preprocessor version:" + str(_pc_ver._PCVER_HIGH_) + "." + str(_pc_ver._PCVER_LOW0_) + "." + str(_pc_ver._PCVER_LOW1_),
+			"-- src: " + root_file_path,
 			"--------------------------------------------------------------------------------------------------------------------------------------------"
 		]
 		return "\n".join([_fi.CreateOutputComment(l) for l in lines]);

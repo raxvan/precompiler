@@ -29,6 +29,11 @@ class GeneratedTokenInterator(TokenInterator):
 			return self.next.GetFileUnit()
 		return None
 
+	def GetRootFileUnit(self):
+		if self.next != None:
+			return self.next.GetRootFileUnit()
+		return None
+
 	def IsFileUnit(self):
 		return False
 
@@ -41,6 +46,13 @@ class FileTokenInterator(TokenInterator):
 		self.unit_state = _unit_state
 
 	def GetFileUnit(self):
+		return self.abs_file_path
+
+	def GetRootFileUnit(self):
+		if self.next != None:
+			result = self.next.GetRootFileUnit()
+			if result != None:
+				return result
 		return self.abs_file_path
 
 	def IsFileUnit(self):
@@ -60,6 +72,11 @@ class ColapsedTokenInterator(TokenInterator):
 	def GetFileUnit(self):
 		if self.next != None:
 			return self.next.GetFileUnit()
+		return None
+
+	def GetRootFileUnit(self):
+		if self.next != None:
+			return self.next.GetRootFileUnit()
 		return None
 
 	def IsFileUnit(self):
@@ -140,6 +157,9 @@ class ParsingContextStack(object):
 
 	def GetActiveSourceFile(self):
 		return self.current_iterator.GetFileUnit();
+
+	def GetRootSourceFile(self):
+		return self.current_iterator.GetRootFileUnit();
 
 ###########################################################################################################
 

@@ -1,4 +1,6 @@
+//mind the __LINE__ macro test!
 #source info
+#include "include_probe_info.txt"
 //------------------------------------------------------------
 #define _
 #if value("_") != "":
@@ -157,7 +159,7 @@
 #else
 	#run print("`#redefine _ __FILENAME__ & #collapse _` -> Ok")
 #endif
-#if value("__LINE__") != '160':
+#if value("__LINE__") != '162':
 	#error '`value("__LINE__") != "?"` Failed'
 #else
 	#run print('`value("__LINE__") != "?"` -> Ok')
