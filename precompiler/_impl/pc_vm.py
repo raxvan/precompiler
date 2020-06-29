@@ -156,7 +156,7 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			source_file = self.precompiler.input_state.GetActiveSourceFile()
 			self.precompiler.file_interface.StashFileContent(source_file)
 		elif _id == 'break':
-			self.precompiler._break_file_unit();
+			self.precompiler._break_file_unit(tok);
 		elif _id == 'info':
 			file_info = self._create_file_info(tok);
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_info],_pc_utils.TokSource(tok)))
@@ -388,6 +388,7 @@ class _precompiler_backend(object):
 		self.condition_stack.pop()
 		self.active_condition = None
 
+
 	def is_evaluating(self):
 		if self.active_condition is None:
 			self.active_condition = True
@@ -523,10 +524,25 @@ class _precompiler_backend(object):
 			self.RaiseErrorOnToken(tok,"Could not locate file!","Path: `" + strval + "`")
 		return abs_path
 
+	def validate_condition_stack(self,current_stack,srctok,filename):
+		if len(current_stack) != len(self.condition_stack):
+			if srctok == None:
+				self.RaiseErrorOnFile(filename,"Incomplete if/else/endif block!","")
+			else:
+				self.RaiseErrorOnToken(srctok,"Incomplete if/else/endif block!","")
+		else:
+			dif = set(current_stack) - set(self.condition_stack)
+			if len(dif) != 0:
+				if srctok == None:
+					self.RaiseErrorOnFile(filename,"Incomplete if/else/endif block!","")
+				else:
+					self.RaiseErrorOnToken(srctok,"Incomplete if/else/endif block!","")
 
 
-	def _break_file_unit(self):
-		self.condition_stack = self.input_state.BreakFileUnit();
+
+	def _break_file_unit(self,tok):
+		new_stack = self.input_state.BreakFileUnit();
+		self.condition_stack = new_stack
 		self.active_condition = None
 
 	def mark_dependency(self,abs_dependency_file,file_handle_obj):
@@ -557,9 +573,6 @@ class _precompiler_backend(object):
 			return (file_handle_obj,result)
 		else:
 			return (None,[])
-
-
-
 
 	def open_and_load_config_file(self,strval,tok):
 
@@ -610,7 +623,7 @@ class _precompiler_backend(object):
 		if self.options.get("SourceOnceByDefault",False) == True:
 			self.file_interface.StashFileContent(abs_file_path)
 
-		push_result = self.input_state.PushState(_impl_pc_iterator.FileTokenInterator(content,abs_file_path,self.condition_stack.copy()),None)
+		push_result = self.input_state.PushState(_impl_pc_iterator.FileTokenInterator(content,abs_file_path,self.condition_stack.copy(),self,tok),None)
 		if push_result == False:
 			self.RaiseErrorOnToken(tok,"Stack overflow!","Current include `" + abs_file_path + "`.")
 
@@ -687,6 +700,9 @@ class _precompiler_backend(object):
 
 	def RaiseErrorOnToken(self,tok_tuple,message,variable_message):
 		_pc_utils.RaiseErrorAtToken(tok_tuple,message,variable_message)
+
+	def RaiseErrorOnFile(self,filename,message,variable_message):
+		_pc_utils.RaiseErrorAtLocation(filename,0,message,variable_message)
 
 ##########################################################################################################
 ###########################################################################################################

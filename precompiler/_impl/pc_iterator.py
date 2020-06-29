@@ -40,10 +40,12 @@ class GeneratedTokenInterator(TokenInterator):
 ###########################################################################################################
 
 class FileTokenInterator(TokenInterator):
-	def __init__(self,tok_list,abs_file_path,_unit_state):
+	def __init__(self,tok_list,abs_file_path,_unit_state,_vm,_srctok):
 		TokenInterator.__init__(self,tok_list)
 		self.abs_file_path = abs_file_path
 		self.unit_state = _unit_state
+		self.precompiler =  _vm
+		self.srctok = _srctok
 
 	def GetFileUnit(self):
 		return self.abs_file_path
@@ -60,6 +62,9 @@ class FileTokenInterator(TokenInterator):
 
 	def GetUnitState(self):
 		return self.unit_state
+
+	def Stop(self):
+		self.precompiler.validate_condition_stack(self.unit_state,self.srctok,self.abs_file_path)
 
 ###########################################################################################################
 
@@ -101,7 +106,6 @@ class ParsingContextStack(object):
 		self.stack_depth += 1
 		if self.stack_depth > 1024:
 			return False;
-
 
 		next_iterator.next = self.current_iterator
 
