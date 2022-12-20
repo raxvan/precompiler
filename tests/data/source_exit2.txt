@@ -1,0 +1,5 @@
+
+foo
+#include "source_exit1.txt"
+bar
+#error "exit failed!"

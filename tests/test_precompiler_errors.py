@@ -16,8 +16,8 @@ def test_file(infile,outfile,options, msgcheck):
 		msgcheck = msgcheck.replace("\r\n","").replace("\n","")
 		#print("--:" + msg + ":--")
 		#print("--:" + msgcheck + ":--")
-		if msg != msgcheck:
-			raise Exception("FAILED - [" + infile + "]")
+		if msg.find(msgcheck) == -1:
+			raise Exception("FAILED - [" + infile + "]\n" + msg)
 		else:
 			print("OK - [" + infile + "]")
 
@@ -26,9 +26,9 @@ def test_file(infile,outfile,options, msgcheck):
 
 
 path = os.path.join(sys.argv[1],"conditions.txt")
-err = """Error:>/precompiler/tests/data/error_tests/conditions.txt(1)-> .> Incomplete if/else/endif block!"""
+err = """tests/data/error_tests/conditions.txt(1)-> .> Incomplete if/else/endif block!"""
 test_file(path,path + ".pp",None,err)
 
 path = os.path.join(sys.argv[1],"conditions_inc.txt")
-err = """Error:>/precompiler/tests/data/error_tests/conditions_inc.txt(2)->['#include "conditions.txt"', '"conditions.txt"', 2]->> Incomplete if/else/endif block!"""
+err = """tests/data/error_tests/conditions_inc.txt(2)->['#include "conditions.txt"', '"conditions.txt"', 2]->> Incomplete if/else/endif block!"""
 test_file(path,path + ".pp",None,err)

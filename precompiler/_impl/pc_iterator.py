@@ -20,6 +20,12 @@ class TokenInterator():
 
 ###########################################################################################################
 
+class ExitInterator(TokenInterator):
+	def __init__(self):
+		TokenInterator.__init__(self,[])
+
+###########################################################################################################
+
 class GeneratedTokenInterator(TokenInterator):
 	def __init__(self,tok_list):
 		TokenInterator.__init__(self,tok_list)
@@ -144,6 +150,10 @@ class ParsingContextStack(object):
 		self.current_iterator = itr.next
 
 		return state
+
+	def Terminate(self):
+		self.current_iterator = ExitInterator()
+		return []
 
 	def FindVarDefineWithName(self,name):
 		return self.current_iterator.scope.FindVarDefineWithName(name)

@@ -67,10 +67,11 @@ Syntax:
 - `#source \w __ID__`
 
 Possible values for `__ID__` where identifier can be:
-1. `break` will stop precompiling the rest of the tokens of the exsiting file.
-2. `once` will skip all includes of this file if the files was already included or inlined
-3. `dup` will enable inclusion of this file multiple times (to bypass `SourceOnceByDefault` option)
-4. `info` will output a comment containing information about the source file
+1. `break` will stop precompiling of the current file
+2. `exit` will exit precompiling.
+3. `once` will skip all includes of this file if the files was already included or inlined
+4. `dup` will enable inclusion of this file multiple times (to bypass `SourceOnceByDefault` option)
+5. `info` will output a comment containing information about the source file
 
 ### error
 Stops execution and throws an error.
@@ -237,6 +238,8 @@ fu BAR // <- expands to infinity: 'fu u u u u u u u'
 Defines with arguments
 ----------------------
 
+Defines with arguments have and extra `$` in the definitions, this separates arguments from value.
+
 Example:
 ```
 //source
@@ -265,9 +268,9 @@ Arguments are also separated by scopes: `()` `[]` `{}`
 Example:
 ```
 #define ALL_EQUIVALENT (A,B) $
-ALL_EQUIVALENT((1,b),c) //expands into nothing
-ALL_EQUIVALENT([1,b],c) //expands into nothing
-ALL_EQUIVALENT({1,b},c) //expands into nothing
+ALL_EQUIVALENT((1,b),c) //expands into empty
+ALL_EQUIVALENT([1,b],c)
+ALL_EQUIVALENT({1,b},c)
 
 for:
 ALL_EQUIVALENT({1,2},c)
@@ -279,7 +282,7 @@ argument B is `c`
 Conditional commands and their limitations
 ------------------------------------------
 
-This onditional commands are always evaluated:
+This conditional commands are always evaluated:
 - ```#if```
 - ```#ifdef```
 - ```#ifndef```

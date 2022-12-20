@@ -22,6 +22,9 @@ ENV_TEST="include_probe.txt"
 export ENV_TEST
 python3 $THIS/tests/test_precompiler.py $THIS/tests/data/self_test.txt
 
+python3 $THIS/tests/test_precompiler.py $THIS/tests/data/source_exit1.txt
+python3 $THIS/tests/test_precompiler.py $THIS/tests/data/source_exit2.txt
+
 echo "============================================================================="
 echo "Running config tester:"
 python3 $THIS/tests/test_precompiler.py $THIS/tests/data/ini_tester.txt

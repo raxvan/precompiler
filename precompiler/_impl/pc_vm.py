@@ -157,6 +157,8 @@ class _pc_root_parser(_impl_pc_iterator.PrecompilerExecController):
 			self.precompiler.file_interface.StashFileContent(source_file)
 		elif _id == 'break':
 			self.precompiler._break_file_unit(tok);
+		elif _id == 'exit':
+			self.precompiler._terminate(tok);
 		elif _id == 'info':
 			file_info = self._create_file_info(tok);
 			self.assembler.Write((_token_flags.k_trivial_flag,_primitive_toks.kInlined,[file_info],_pc_utils.TokSource(tok)))
@@ -538,10 +540,13 @@ class _precompiler_backend(object):
 				else:
 					self.RaiseErrorOnToken(srctok,"Incomplete if/else/endif block!","")
 
-
-
 	def _break_file_unit(self,tok):
 		new_stack = self.input_state.BreakFileUnit();
+		self.condition_stack = new_stack
+		self.active_condition = None
+
+	def _terminate(self,tok):
+		new_stack = self.input_state.Terminate();
 		self.condition_stack = new_stack
 		self.active_condition = None
 
